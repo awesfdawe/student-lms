@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+@theme {
+  --font-geologica: "Geologica", sans-serif;
+  --font-roboto: "Roboto", sans-serif;
+  --font-icons: "Font Awesome 6 Free Solid", sans-serif;
+
+  --color-accent: #F9A9A9;
+  --color-accent-dark: #E08383;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Geologica:wght@400;700;800&family=Roboto:wght@400;700&display=swap');
+
+@layer base {
+  body {
+    font-family: var(--font-geologica);
+    @apply text-black bg-white antialiased overflow-x-hidden;
+  }
+}
+
+@layer components {
+  .btn-cta {
+    @apply flex items-center justify-center font-geologica font-bold text-[15px] text-white rounded-[53px] transition-all duration-300 cursor-pointer;
+    width: 179px;
+    height: 57px;
+    background: var(--color-accent);
+    line-height: 1; 
+    box-shadow: inset 0px 0px 24.2px 3px rgba(255, 255, 255, 0.25);
+    text-shadow: 2px 7px 11.2px rgba(210, 77, 134, 0.28);
+    padding-bottom: 2px;
+  }
+
+  .btn-cta:hover {
+    @apply transform -translate-y-1;
+    box-shadow: inset 0px 0px 24.2px 3px rgba(255, 255, 255, 0.4), 0px 10px 20px rgba(249, 169, 169, 0.3);
+  }
+
+  .btn-cta:active {
+    @apply transform scale-95;
+  }
+
+  .hero-start {
+    @apply font-normal no-underline;
+    width: 265px;
+    height: 104px;
+    font-size: 64px;
+    background: linear-gradient(180deg, #E5BABA 0%, #E08383 100%);
+    padding-bottom: 6px;
+  }
+}
+
+@keyframes fadeUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1400px;
+  height: 900px;
+  background-image: url("@/assets/svg/background-hero-block.svg");
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: cover;
+  pointer-events: none;
+  z-index: -1; 
+}
+
+@media (min-width: 1600px) {
+  .hero-wrapper::before {
+    max-width: 1800px;
+  }
+}
