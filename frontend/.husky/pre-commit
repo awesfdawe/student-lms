@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -e
+
 if git diff --cached --name-only | grep -q "^frontend/"; then
   echo "Running frontend pre-commit checks..."
   
