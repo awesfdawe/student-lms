@@ -13,5 +13,10 @@ export default defineConfigWithVueTs(
   },
   pluginVue.configs['flat/essential'],
   vueTsConfigs.recommended,
+  {
+    rules: {
+      'vue/multi-word-component-names': 'off',
+    },
+  },
   pluginPrettier,
 )

@@ -1,7 +1,7 @@
 <template>
-  <a href="#test" class="btn-cta">
+  <router-link to="#test" class="btn-cta">
     {{ text }}
-  </a>
+  </router-link>
 </template>
 
 <script setup lang="ts">

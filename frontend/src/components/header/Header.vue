@@ -57,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import HeaderLogo from './HeaderLogo.vue'
 import HeaderNav from './HeaderNav.vue'
 import HeaderCTA from './HeaderCTA.vue'
@@ -74,5 +74,9 @@ function closeMobileMenu() {
 
 watch(isMobileMenuOpen, (isOpen) => {
   document.body.style.overflow = isOpen ? 'hidden' : ''
+})
+
+onUnmounted(() => {
+  document.body.style.overflow = ''
 })
 </script>

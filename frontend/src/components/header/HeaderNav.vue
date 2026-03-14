@@ -6,14 +6,14 @@
       isMobile ? 'flex-col items-center gap-6' : 'items-center gap-10 xl:gap-[3.75rem]',
     ]"
   >
-    <a
+    <router-link
       v-for="item in navItems"
       :key="item.id"
-      :href="item.link"
+      :to="item.link"
       class="text-black hover:text-accent transition-colors duration-200"
     >
       {{ item.label }}
-    </a>
+    </router-link>
   </nav>
 </template>
 
