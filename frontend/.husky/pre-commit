@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+if git diff --cached --name-only | grep -q "^frontend/"; then
+  echo "Running frontend pre-commit checks..."
+  
+  cd frontend
+  
+  if git diff --cached --name-only | grep -E "^frontend/.*\.(vue|ts|tsx|js|jsx)$" > /dev/null; then
+    pnpm run type-check
+  fi
+  
+  pnpm exec lint-staged
+fi
