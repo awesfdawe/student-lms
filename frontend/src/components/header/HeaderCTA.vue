@@ -4,11 +4,12 @@
   </a>
 </template>
 
-<script setup>
-defineProps({
-  text: {
-    type: String,
-    default: "Записаться на курс"
-  }
+<script setup lang="ts">
+interface Props {
+  text?: string
+}
+
+withDefaults(defineProps<Props>(), {
+  text: 'Записаться на курс',
 })
 </script>

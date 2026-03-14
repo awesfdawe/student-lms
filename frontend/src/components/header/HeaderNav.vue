@@ -1,8 +1,9 @@
 <template>
-  <nav 
+  <nav
+    aria-label="Основная навигация"
     :class="[
-      'font-geologica text-[15px] flex',
-      isMobile ? 'flex-col items-center gap-6' : 'items-center gap-10 xl:gap-[60px]'
+      'font-geologica text-[0.9375rem] flex',
+      isMobile ? 'flex-col items-center gap-6' : 'items-center gap-10 xl:gap-[3.75rem]',
     ]"
   >
     <a
@@ -16,17 +17,24 @@
   </nav>
 </template>
 
-<script setup>
-defineProps({
-  isMobile: {
-    type: Boolean,
-    default: false
-  }
+<script setup lang="ts">
+interface Props {
+  isMobile?: boolean
+}
+
+withDefaults(defineProps<Props>(), {
+  isMobile: false,
 })
 
-const navItems = [
-  { id: "faq", label: "Частые вопросы", link: "#faq" },
-  { id: "free", label: "Бесплатные курсы", link: "#free" },
-  { id: "about", label: "О нас", link: "#about" }
+interface NavItem {
+  id: string
+  label: string
+  link: string
+}
+
+const navItems: NavItem[] = [
+  { id: 'faq', label: 'Частые вопросы', link: '#faq' },
+  { id: 'free', label: 'Бесплатные курсы', link: '#free' },
+  { id: 'about', label: 'О нас', link: '#about' },
 ]
 </script>
