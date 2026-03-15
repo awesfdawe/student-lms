@@ -8,6 +8,16 @@ const router = createRouter({
       name: 'landing',
       component: () => import('@/views/LandingPage.vue'),
     },
+    {
+      path: '/course/:id',
+      name: 'course',
+      component: () => import('@/views/LandingPage.vue'),
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      redirect: '/',
+    },
   ],
   scrollBehavior(to, _from, savedPosition) {
     if (savedPosition) {

@@ -28,6 +28,8 @@ coverage
 
 .eslintcache
 
+script.sh
+
 # Cypress
 /cypress/videos/
 /cypress/screenshots/
