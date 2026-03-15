@@ -3,7 +3,9 @@
     aria-label="Основная навигация"
     :class="[
       'font-geologica text-[0.9375rem] flex',
-      isMobile ? 'flex-col items-center gap-6' : 'items-center gap-10 xl:gap-[3.75rem]',
+      isMobile
+        ? 'flex-col items-start gap-[1.5rem] pl-[2rem] w-full'
+        : 'items-center gap-[2.5rem] xl:gap-[3.75rem]',
     ]"
   >
     <router-link
@@ -11,6 +13,7 @@
       :key="item.id"
       :to="item.link"
       class="text-black hover:text-accent transition-colors duration-200"
+      @click="$emit('close')"
     >
       {{ item.label }}
     </router-link>
@@ -25,6 +28,8 @@ interface Props {
 withDefaults(defineProps<Props>(), {
   isMobile: false,
 })
+
+defineEmits(['close'])
 
 interface NavItem {
   id: string

@@ -1,21 +1,22 @@
 @import 'tailwindcss';
 @import '@fortawesome/fontawesome-free/css/all.css';
+@import url('https://fonts.googleapis.com/css2?family=Geologica:wght@400;700;800&family=Roboto:wght@400;700&display=swap');
 
 @theme {
   --font-geologica: 'Geologica', sans-serif;
   --font-roboto: 'Roboto', sans-serif;
-  --font-icons: 'Font Awesome 6 Free Solid', sans-serif;
+  --font-icons: 'Font Awesome 6 Free', sans-serif;
+  --font-logo: 'Font Awesome 6 Free', sans-serif;
 
   --color-accent: #f9a9a9;
   --color-accent-dark: #e08383;
 
-  /* Design tokens for layout */
-  --spacing-container-px: 5.625rem; /* 90px */
-  --spacing-header-py: 2.125rem; /* 34px */
-  --width-container: 80rem; /* 1280px */
-  --width-cta: 11.1875rem; /* 179px */
-  --height-cta: 3.5625rem; /* 57px */
-  --height-header: 5.625rem; /* 90px */
+  --spacing-container-px: 5.625rem;
+  --spacing-header-py: 2.125rem;
+  --width-container: 80rem;
+  --width-cta: 11.1875rem;
+  --height-cta: 3.5625rem;
+  --height-header: 5.625rem;
 }
 
 @layer base {
@@ -43,7 +44,7 @@
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 300ms;
     cursor: pointer;
-    font-size: 0.9375rem; /* 15px */
+    font-size: 0.9375rem;
     width: var(--width-cta);
     height: var(--height-cta);
     background: var(--color-accent);
@@ -62,15 +63,16 @@
   }
 
   .btn-cta:active {
-    transform: scale(0.95);
+    transform: scale(0.9);
+    opacity: 0.85;
   }
 
   .hero-start {
     font-weight: 400;
     text-decoration-line: none;
-    width: 16.5625rem; /* 265px */
-    height: 6.5rem; /* 104px */
-    font-size: 4rem; /* 64px */
+    width: 16.5625rem;
+    height: 6.5rem;
+    font-size: 4rem;
     background: linear-gradient(180deg, #e5baba 0%, #e08383 100%);
     padding-bottom: 0.375rem;
   }
@@ -91,7 +93,6 @@
   animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Respect user motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-up {
     animation: none;
@@ -120,8 +121,8 @@
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 87.5rem; /* 1400px */
-  height: 56.25rem; /* 900px */
+  max-width: 87.5rem;
+  height: 56.25rem;
   background-image: url('@/assets/svg/background-hero-block.svg');
   background-repeat: no-repeat;
   background-position: center top;
@@ -131,8 +132,7 @@
 }
 
 @media (min-width: 100rem) {
-  /* 1600px */
   .hero-wrapper::before {
-    max-width: 112.5rem; /* 1800px */
+    max-width: 112.5rem;
   }
 }

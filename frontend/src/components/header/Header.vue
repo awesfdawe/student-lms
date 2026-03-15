@@ -1,9 +1,8 @@
 <template>
-  <header
-    class="fixed top-0 left-0 w-full z-50 transition-all duration-300 backdrop-blur-md bg-white/70"
-  >
+  <header class="fixed top-0 left-0 w-full z-50">
     <div
-      class="max-w-[80rem] mx-auto px-5 xl:px-[5.625rem] py-[1.25rem] xl:py-[2.125rem] flex items-center justify-between"
+      class="relative z-50 flex items-center justify-between px-[1.25rem] xl:px-[5.625rem] bg-white/90 backdrop-blur-md shadow-sm transition-all duration-300 ease-in-out"
+      :class="isScrolled ? 'py-[0.75rem] xl:py-[1rem]' : 'py-[1.25rem] xl:py-[2.125rem]'"
     >
       <HeaderLogo />
 
@@ -16,12 +15,12 @@
       <button
         :aria-expanded="isMobileMenuOpen"
         aria-controls="mobile-menu"
-        class="lg:hidden relative z-[70] p-2 text-black hover:opacity-70 transition-all flex items-center justify-center"
+        class="lg:hidden p-[0.5rem] text-black hover:opacity-70 transition-all flex items-center justify-center"
         aria-label="Toggle menu"
         @click="toggleMobileMenu"
       >
         <svg
-          class="w-8 h-8 transition-transform duration-300"
+          class="w-[2rem] h-[2rem] transition-transform duration-300"
           :class="{ 'rotate-45': isMobileMenuOpen }"
           viewBox="0 0 24 24"
           fill="none"
@@ -38,31 +37,36 @@
 
     <transition
       enter-active-class="transition duration-300 ease-out"
-      enter-from-class="opacity-0 -translate-y-4"
+      enter-from-class="opacity-0 -translate-y-full"
       enter-to-class="opacity-100 translate-y-0"
       leave-active-class="transition duration-200 ease-in"
       leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-4"
+      leave-to-class="opacity-0 -translate-y-full"
     >
       <div
         v-if="isMobileMenuOpen"
         id="mobile-menu"
-        class="absolute top-0 left-0 w-full min-h-screen bg-white shadow-2xl flex flex-col items-center pt-[7.5rem] gap-10 lg:hidden z-[60]"
+        class="absolute top-0 left-0 w-full min-h-screen bg-white/95 backdrop-blur-xl flex flex-col items-start pt-[7.5rem] z-40"
       >
-        <HeaderNav is-mobile @click="closeMobileMenu" />
-        <HeaderCTA />
+        <HeaderNav is-mobile @close="closeMobileMenu" />
+
+        <div class="w-full px-[2rem] mt-[3rem] mb-[4rem]">
+          <div class="w-full h-[1px] bg-gray-200 mb-[2rem]"></div>
+          <HeaderCTA full-width @click="closeMobileMenu" />
+        </div>
       </div>
     </transition>
   </header>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import HeaderLogo from './HeaderLogo.vue'
 import HeaderNav from './HeaderNav.vue'
 import HeaderCTA from './HeaderCTA.vue'
 
 const isMobileMenuOpen = ref(false)
+const isScrolled = ref(false)
 
 function toggleMobileMenu() {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
@@ -72,11 +76,21 @@ function closeMobileMenu() {
   isMobileMenuOpen.value = false
 }
 
+function handleScroll() {
+  isScrolled.value = window.scrollY > 50
+}
+
 watch(isMobileMenuOpen, (isOpen) => {
   document.body.style.overflow = isOpen ? 'hidden' : ''
 })
 
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll()
+})
+
 onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
   document.body.style.overflow = ''
 })
 </script>

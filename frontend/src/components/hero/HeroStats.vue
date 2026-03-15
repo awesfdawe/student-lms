@@ -1,7 +1,8 @@
 <template>
   <div
-    class="grid grid-cols-1 md:grid-cols-3 gap-10 xl:gap-[8.125rem] mt-20 xl:mt-[6.25rem] max-w-[60rem] mx-auto animate-fade-up"
-    style="animation-delay: 0.2s"
+    ref="statsRef"
+    class="grid grid-cols-2 md:grid-cols-3 gap-[1rem] md:gap-[2.5rem] xl:gap-[8.125rem] mt-[3rem] xl:mt-[6.25rem] max-w-[60rem] mx-auto transition-all duration-1000 transform"
+    :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[3rem]'"
   >
     <HeroStatItem
       v-for="(stat, index) in stats"
@@ -9,11 +10,13 @@
       :value="stat.value"
       :description="stat.description"
       :is-bold-value="stat.isBold"
+      :class="{ 'col-span-2 md:col-span-1': index === 2 }"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
 import HeroStatItem from './HeroStatItem.vue'
 
 interface StatItem {
@@ -24,7 +27,32 @@ interface StatItem {
 
 const stats: StatItem[] = [
   { value: '100 000', description: 'Студентов выбрали нас', isBold: true },
-  { value: '90%', description: 'Выпускников уже нашли себе работу', isBold: true },
-  { value: 'Первые', description: 'В использовании ИИ в профессиональном обучении', isBold: false },
+  { value: '90%', description: 'Уже нашли работу', isBold: true },
+  { value: 'Первые', description: 'В использовании ИИ в обучении', isBold: false },
 ]
+
+const statsRef = ref<HTMLElement | null>(null)
+const isVisible = ref(false)
+let observer: IntersectionObserver | null = null
+
+onMounted(() => {
+  observer = new IntersectionObserver(
+    (entries) => {
+      const entry = entries[0]
+      if (entry?.isIntersecting) {
+        isVisible.value = true
+        if (statsRef.value) observer?.unobserve(statsRef.value)
+      }
+    },
+    { threshold: 0.1 },
+  )
+
+  if (statsRef.value) {
+    observer.observe(statsRef.value)
+  }
+})
+
+onUnmounted(() => {
+  if (observer) observer.disconnect()
+})
 </script>
