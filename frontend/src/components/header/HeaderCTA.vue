@@ -1,5 +1,5 @@
 <template>
-  <router-link to="#test" :class="['btn-cta', fullWidth ? '!w-full' : '']" @click="$emit('click')">
+  <router-link to="/#test" :class="['btn-cta', fullWidth ? '!w-full' : '']" @click="$emit('click')">
     {{ text }}
   </router-link>
 </template>

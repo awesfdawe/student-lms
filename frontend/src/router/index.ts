@@ -11,12 +11,28 @@ const router = createRouter({
     {
       path: '/course/:id',
       name: 'course',
-      component: () => import('@/views/LandingPage.vue'),
+      component: () => import('@/views/CoursePage.vue'),
     },
+    {
+      path: '/faq',
+      name: 'faq',
+      component: () => import('@/views/FaqPage.vue'),
+    },
+    {
+      path: '/free',
+      name: 'free',
+      component: () => import('@/views/FreeCoursesPage.vue'),
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: () => import('@/views/AboutPage.vue'),
+    },
+    // Этот catch-all должен быть строго в самом конце!
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
-      redirect: '/',
+      component: () => import('@/views/NotFound.vue'),
     },
   ],
   scrollBehavior(to, _from, savedPosition) {

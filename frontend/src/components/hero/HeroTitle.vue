@@ -4,7 +4,7 @@
   >
     <div class="flex items-center gap-[0.5rem] md:gap-[3.0625rem] w-full md:w-auto">
       <router-link
-        to="#test"
+        to="/#test"
         class="btn-cta hero-start shrink-0 cursor-pointer !flex !items-center !justify-center !w-[11.5rem] !h-[4.5rem] !text-[2.5rem] !leading-none md:!w-[16.5625rem] md:!h-[6.5rem] md:!text-[4rem]"
       >
         {{ highlightText }}

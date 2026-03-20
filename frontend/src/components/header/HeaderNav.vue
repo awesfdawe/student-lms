@@ -38,8 +38,8 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { id: 'faq', label: 'Частые вопросы', link: '#faq' },
-  { id: 'free', label: 'Бесплатные курсы', link: '#free' },
-  { id: 'about', label: 'О нас', link: '#about' },
+  { id: 'faq', label: 'Частые вопросы', link: '/faq' },
+  { id: 'free', label: 'Бесплатные курсы', link: '/free' },
+  { id: 'about', label: 'О нас', link: '/about' },
 ]
 </script>
