@@ -1,7 +1,5 @@
 <template>
-  <section
-    class="relative z-10 pt-[5rem] md:pt-[10rem] pb-[3rem] md:pb-[6rem] px-[1.25rem] xl:px-[5.625rem] max-w-[80rem] mx-auto"
-  >
+  <section class="relative z-10 pt-[5rem] md:pt-[10rem] pb-[3rem] md:pb-[6rem] layout-container">
     <div
       ref="sectionRef"
       class="grid grid-cols-1 lg:grid-cols-2 gap-[1.5rem] md:gap-[2.5rem] transition-all duration-1000 transform"

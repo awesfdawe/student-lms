@@ -1,7 +1,7 @@
 <template>
-  <header class="fixed top-0 left-0 w-full z-50">
+  <header class="header-wrapper">
     <div
-      class="relative z-50 flex items-center justify-between px-[1.25rem] xl:px-[5.625rem] bg-white/90 backdrop-blur-md shadow-sm transition-all duration-300 ease-in-out"
+      class="header-content"
       :class="isScrolled ? 'py-[0.75rem] xl:py-[1rem]' : 'py-[1.25rem] xl:py-[2.125rem]'"
     >
       <HeaderLogo />

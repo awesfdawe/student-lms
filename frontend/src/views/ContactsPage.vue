@@ -22,7 +22,7 @@
               <b class="text-accent">Email:</b> hello@skillforge.ru
             </p>
             <p class="font-roboto text-[1.125rem] md:text-[1.25rem] text-black">
-              <b class="text-accent">Офис:</b> г. Москва, Инновационный центр Сколково
+              <b class="text-accent">Офис:</b> г. Калининград, ул. Брамса 9, кабинет 11
             </p>
           </div>
         </div>
