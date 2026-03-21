@@ -16,7 +16,7 @@
         подходит вам больше всего, прежде чем принимать решение.
       </p>
       <div
-        class="grid grid-cols-1 lg:grid-cols-2 gap-[1.5rem] md:gap-[2.5rem] animate-fade-up"
+        class="grid grid-cols-1 lg:grid-cols-2 gap-[1.5rem] md:gap-[2.5rem] animate-fade-up mb-[3rem]"
         style="animation-delay: 0.2s"
       >
         <CourseCard
@@ -33,6 +33,9 @@
           image="/src/assets/images/course-programmer.jpg"
           link="/course/programmer"
         />
+      </div>
+      <div class="animate-fade-up" style="animation-delay: 0.3s">
+        <router-link to="/" class="btn-cta"> На главную </router-link>
       </div>
     </section>
   </MainLayout>

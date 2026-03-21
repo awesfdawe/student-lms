@@ -28,7 +28,15 @@
             интенсивную программу с упором на практику, помощь наставников и формирование сильного
             портфолио для быстрого старта карьеры.
           </p>
-          <router-link to="/#test" class="btn-cta mt-[1rem]"> Записаться на курс </router-link>
+          <div class="flex flex-wrap gap-[1rem] mt-[1rem]">
+            <router-link to="/#test" class="btn-cta"> Записаться на курс </router-link>
+            <router-link
+              to="/free"
+              class="btn-cta !bg-transparent !text-black border-2 border-accent hover:!bg-accent hover:!text-white"
+            >
+              К списку курсов
+            </router-link>
+          </div>
         </div>
 
         <div class="w-full lg:w-1/2 relative group">
@@ -53,7 +61,15 @@
         <p class="font-roboto text-[1.25rem] text-black/70">
           Возможно, вы перешли по устаревшей ссылке или такого курса пока нет.
         </p>
-        <router-link to="/" class="btn-cta"> На главную </router-link>
+        <div class="flex flex-wrap gap-[1rem] justify-center">
+          <router-link to="/" class="btn-cta"> На главную </router-link>
+          <router-link
+            to="/free"
+            class="btn-cta !bg-transparent !text-black border-2 border-accent hover:!bg-accent hover:!text-white"
+          >
+            К списку курсов
+          </router-link>
+        </div>
       </div>
     </section>
   </MainLayout>

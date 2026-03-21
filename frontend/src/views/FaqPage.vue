@@ -44,6 +44,9 @@
           </p>
         </div>
       </div>
+      <div class="mt-[3rem] animate-fade-up" style="animation-delay: 0.3s">
+        <router-link to="/" class="btn-cta"> На главную </router-link>
+      </div>
     </section>
   </MainLayout>
 </template>
