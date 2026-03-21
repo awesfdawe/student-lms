@@ -11,6 +11,8 @@ const router = createRouter({
     { path: '/contacts', name: 'contacts', component: () => import('@/views/ContactsPage.vue') },
     { path: '/login', name: 'login', component: () => import('@/views/LoginPage.vue') },
     { path: '/register', name: 'register', component: () => import('@/views/RegisterPage.vue') },
+    { path: '/privacy', name: 'privacy', component: () => import('@/views/PrivacyPolicyPage.vue') },
+    { path: '/terms', name: 'terms', component: () => import('@/views/TermsOfServicePage.vue') },
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
