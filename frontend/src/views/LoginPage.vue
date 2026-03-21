@@ -9,7 +9,7 @@
         Вход в систему
       </h1>
       <p class="font-roboto text-black/70 text-center mb-[2rem]">
-        С возвращением! Пожалуйста, введите свои данные.
+        С возвращением! Пожалуйста, введи свои данные.
       </p>
 
       <form @submit.prevent="handleLogin" class="flex flex-col gap-[1.25rem]">
@@ -18,7 +18,7 @@
           <input
             type="email"
             required
-            placeholder="Введите ваш email"
+            placeholder="Введи свой email"
             class="w-full h-[3.5rem] px-[1.25rem] rounded-[1rem] border border-gray-200 bg-white/50 focus:bg-white focus:border-accent outline-none transition-colors font-roboto text-[1rem]"
           />
         </div>
@@ -27,7 +27,7 @@
           <input
             type="password"
             required
-            placeholder="Введите пароль"
+            placeholder="Введи пароль"
             class="w-full h-[3.5rem] px-[1.25rem] rounded-[1rem] border border-gray-200 bg-white/50 focus:bg-white focus:border-accent outline-none transition-colors font-roboto text-[1rem]"
           />
         </div>
@@ -37,7 +37,7 @@
       <div class="mt-[2rem] text-center font-roboto text-[0.9375rem] text-black/70">
         Нет аккаунта?
         <router-link to="/register" class="text-accent font-bold hover:underline"
-          >Зарегистрируйтесь</router-link
+          >Зарегистрируйся</router-link
         >
       </div>
     </section>
@@ -49,6 +49,5 @@ import MainLayout from '@/layout/MainLayout.vue'
 
 const handleLogin = () => {
   console.log('Login attempt')
-  // Здесь будет логика работы с API
 }
 </script>

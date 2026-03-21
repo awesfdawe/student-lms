@@ -17,6 +17,15 @@
     >
       {{ item.label }}
     </router-link>
+
+    <router-link
+      v-if="isMobile"
+      to="/login"
+      class="text-accent font-bold hover:text-accent-dark transition-colors duration-200 mt-[1rem]"
+      @click="$emit('close')"
+    >
+      Войти
+    </router-link>
   </nav>
 </template>
 

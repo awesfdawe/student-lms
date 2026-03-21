@@ -19,7 +19,6 @@
           обработки персональных данных и меры по обеспечению безопасности персональных данных,
           предпринимаемые ООО "СКИЛЛФОРДЖ".
         </p>
-
         <p class="mb-4"><strong>2. Основные понятия, используемые в Политике</strong></p>
         <ul class="list-disc pl-5 mb-4 space-y-2">
           <li>
@@ -33,20 +32,20 @@
             к определенному или определяемому Пользователю веб-сайта.
           </li>
         </ul>
-
-        <p class="mb-4"><strong>3. Цели сбора персональных данных</strong></p>
-        <p class="mb-4">
-          Обработка персональных данных Пользователя осуществляется в целях предоставления доступа
-          Пользователю к сервисам, информации и/или материалам, содержащимся на веб-сайте, а также
-          для направления уведомлений о новых продуктах и услугах, специальных предложениях и
-          различных событиях (при наличии отдельного согласия).
-        </p>
       </div>
-      <router-link to="/" class="btn-cta mt-[3rem] inline-block">Вернуться на главную</router-link>
+      <div class="flex flex-wrap gap-[1rem] mt-[3rem]">
+        <button @click="router.back()" class="btn-cta !bg-gray-200 !text-black hover:!bg-gray-300">
+          Назад
+        </button>
+        <router-link to="/" class="btn-cta"> На главную </router-link>
+      </div>
     </section>
   </MainLayout>
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import MainLayout from '@/layout/MainLayout.vue'
+
+const router = useRouter()
 </script>

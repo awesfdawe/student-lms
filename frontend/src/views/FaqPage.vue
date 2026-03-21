@@ -16,8 +16,8 @@
             Как проходит обучение?
           </h3>
           <p class="font-roboto text-[1rem] md:text-[1.125rem] text-black/70 mt-[1rem]">
-            Обучение проходит онлайн на нашей платформе. Вы смотрите видеоуроки в удобное время,
-            выполняете практические задания и получаете развернутую обратную связь от персонального
+            Обучение проходит онлайн на нашей платформе. Ты смотришь видеоуроки в удобное время,
+            выполняешь практические задания и получаешь развернутую обратную связь от персонального
             наставника.
           </p>
         </div>
@@ -39,18 +39,32 @@
             Можно ли совмещать учебу с работой?
           </h3>
           <p class="font-roboto text-[1rem] md:text-[1.125rem] text-black/70 mt-[1rem]">
-            Конечно! Расписание гибкое. Вы сами выбираете темп прохождения модулей. В среднем для
+            Конечно! Расписание гибкое. Ты сам выбираешь темп прохождения модулей. В среднем для
             комфортного обучения достаточно уделять от 1 до 2 часов в день.
           </p>
         </div>
       </div>
-      <div class="mt-[3rem] animate-fade-up" style="animation-delay: 0.3s">
-        <router-link to="/" class="btn-cta"> На главную </router-link>
+      <div
+        class="flex flex-wrap items-center gap-[1rem] mt-[3rem] w-full max-w-[30rem] animate-fade-up"
+        style="animation-delay: 0.3s"
+      >
+        <button
+          @click="router.back()"
+          class="btn-cta !bg-gray-200 !text-black hover:!bg-gray-300 flex-grow whitespace-nowrap text-center"
+        >
+          Назад
+        </button>
+        <router-link to="/" class="btn-cta flex-grow-[2] whitespace-nowrap text-center">
+          На главную
+        </router-link>
       </div>
     </section>
   </MainLayout>
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import MainLayout from '@/layout/MainLayout.vue'
+
+const router = useRouter()
 </script>

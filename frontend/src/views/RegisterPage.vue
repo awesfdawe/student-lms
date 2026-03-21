@@ -9,7 +9,7 @@
         Регистрация
       </h1>
       <p class="font-roboto text-black/70 text-center mb-[2rem]">
-        Создайте аккаунт, чтобы начать обучение
+        Создай аккаунт, чтобы начать обучение
       </p>
 
       <form @submit.prevent="handleRegister" class="flex flex-col gap-[1.25rem]">
@@ -27,7 +27,7 @@
           <input
             type="email"
             required
-            placeholder="Введите ваш email"
+            placeholder="Введи свой email"
             class="w-full h-[3.5rem] px-[1.25rem] rounded-[1rem] border border-gray-200 bg-white/50 focus:bg-white focus:border-accent outline-none transition-colors font-roboto text-[1rem]"
           />
         </div>
@@ -36,7 +36,7 @@
           <input
             type="password"
             required
-            placeholder="Придумайте надежный пароль"
+            placeholder="Придумай надежный пароль"
             class="w-full h-[3.5rem] px-[1.25rem] rounded-[1rem] border border-gray-200 bg-white/50 focus:bg-white focus:border-accent outline-none transition-colors font-roboto text-[1rem]"
           />
         </div>
@@ -81,7 +81,7 @@
 
       <div class="mt-[2rem] text-center font-roboto text-[0.9375rem] text-black/70">
         Уже есть аккаунт?
-        <router-link to="/login" class="text-accent font-bold hover:underline">Войти</router-link>
+        <router-link to="/login" class="text-accent font-bold hover:underline">Войди</router-link>
       </div>
     </section>
   </MainLayout>
@@ -92,6 +92,5 @@ import MainLayout from '@/layout/MainLayout.vue'
 
 const handleRegister = () => {
   console.log('Registration attempt')
-  // Здесь будет логика работы с API
 }
 </script>

@@ -24,17 +24,25 @@
           <p
             class="font-roboto text-[1rem] md:text-[1.125rem] leading-[1.6] text-black/70 max-w-[34.375rem]"
           >
-            Освойте одну из самых востребованных профессий с нуля. Мы подготовили для вас
-            интенсивную программу с упором на практику, помощь наставников и формирование сильного
-            портфолио для быстрого старта карьеры.
+            Освой одну из самых востребованных профессий с нуля. Мы подготовили для тебя интенсивную
+            программу с упором на практику, помощь наставников и формирование сильного портфолио для
+            быстрого старта карьеры.
           </p>
-          <div class="flex flex-wrap gap-[1rem] mt-[1rem]">
-            <router-link to="/#test" class="btn-cta"> Записаться на курс </router-link>
+          <div class="flex flex-wrap items-center gap-[1rem] mt-[1rem] w-full">
+            <button
+              @click="router.back()"
+              class="btn-cta !bg-gray-200 !text-black hover:!bg-gray-300 flex-grow whitespace-nowrap text-center"
+            >
+              Назад
+            </button>
             <router-link
               to="/free"
-              class="btn-cta !bg-transparent !text-black border-2 border-accent hover:!bg-accent hover:!text-white"
+              class="btn-cta !bg-transparent !text-black border-2 border-accent hover:!bg-accent hover:!text-white flex-grow whitespace-nowrap text-center"
             >
               К списку курсов
+            </router-link>
+            <router-link to="/register" class="btn-cta flex-grow-[2] whitespace-nowrap text-center">
+              Записаться на курс
             </router-link>
           </div>
         </div>
@@ -59,15 +67,23 @@
           Курс не найден
         </h1>
         <p class="font-roboto text-[1.25rem] text-black/70">
-          Возможно, вы перешли по устаревшей ссылке или такого курса пока нет.
+          Возможно, ты перешел по устаревшей ссылке или такого курса пока нет.
         </p>
-        <div class="flex flex-wrap gap-[1rem] justify-center">
-          <router-link to="/" class="btn-cta"> На главную </router-link>
+        <div class="flex flex-wrap justify-center items-center gap-[1rem] w-full max-w-[40rem]">
+          <button
+            @click="router.back()"
+            class="btn-cta !bg-gray-200 !text-black hover:!bg-gray-300 flex-grow whitespace-nowrap text-center"
+          >
+            Назад
+          </button>
           <router-link
             to="/free"
-            class="btn-cta !bg-transparent !text-black border-2 border-accent hover:!bg-accent hover:!text-white"
+            class="btn-cta !bg-transparent !text-black border-2 border-accent hover:!bg-accent hover:!text-white flex-grow whitespace-nowrap text-center"
           >
             К списку курсов
+          </router-link>
+          <router-link to="/" class="btn-cta flex-grow-[2] whitespace-nowrap text-center">
+            На главную
           </router-link>
         </div>
       </div>
@@ -77,7 +93,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import MainLayout from '@/layout/MainLayout.vue'
 
 import uxUiImg from '@/assets/images/course-ux-ui.jpg'
@@ -85,6 +101,7 @@ import progImg from '@/assets/images/course-programmer.jpg'
 import tdImg from '@/assets/images/course-3d.jpg'
 
 const route = useRoute()
+const router = useRouter()
 const courseId = route.params.id as string
 
 const coursesInfo: Record<

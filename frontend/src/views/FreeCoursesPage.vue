@@ -12,8 +12,8 @@
         class="font-roboto text-[1.125rem] text-black/70 mb-[3rem] animate-fade-up max-w-[40rem]"
         style="animation-delay: 0.1s"
       >
-        Попробуйте наши вводные программы абсолютно бесплатно, чтобы понять, какое IT-направление
-        подходит вам больше всего, прежде чем принимать решение.
+        Попробуй наши вводные программы абсолютно бесплатно, чтобы понять, какое IT-направление
+        подходит тебе больше всего, прежде чем принимать решение.
       </p>
       <div
         class="grid grid-cols-1 lg:grid-cols-2 gap-[1.5rem] md:gap-[2.5rem] animate-fade-up mb-[3rem]"
@@ -34,14 +34,28 @@
           link="/course/programmer"
         />
       </div>
-      <div class="animate-fade-up" style="animation-delay: 0.3s">
-        <router-link to="/" class="btn-cta"> На главную </router-link>
+      <div
+        class="flex flex-wrap items-center gap-[1rem] w-full max-w-[30rem] animate-fade-up"
+        style="animation-delay: 0.3s"
+      >
+        <button
+          @click="router.back()"
+          class="btn-cta !bg-gray-200 !text-black hover:!bg-gray-300 flex-grow whitespace-nowrap text-center"
+        >
+          Назад
+        </button>
+        <router-link to="/" class="btn-cta flex-grow-[2] whitespace-nowrap text-center">
+          На главную
+        </router-link>
       </div>
     </section>
   </MainLayout>
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import MainLayout from '@/layout/MainLayout.vue'
 import CourseCard from '@/components/courses/CourseCard.vue'
+
+const router = useRouter()
 </script>

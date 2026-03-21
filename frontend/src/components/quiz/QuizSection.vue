@@ -8,7 +8,7 @@
       class="flex flex-col-reverse lg:flex-row items-center justify-between gap-[3rem] lg:gap-[5rem] transition-all duration-1000 transform"
       :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[3rem]'"
     >
-      <div class="quiz-container">
+      <div class="quiz-container w-full lg:w-1/2">
         <transition name="fade-quiz" mode="out-in">
           <QuizQuestionCard
             v-if="!isFinished && currentQuestion"
@@ -22,6 +22,7 @@
             v-else-if="isFinished"
             :key="'result'"
             :result-text="resultText"
+            :course-link="courseLink"
             @reset="resetQuiz"
           />
         </transition>

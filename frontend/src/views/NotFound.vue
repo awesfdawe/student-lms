@@ -15,14 +15,27 @@
         Страница не найдена
       </h2>
       <p class="font-roboto text-[1.125rem] text-black/70 mt-[1rem] mb-[3rem] max-w-[25rem]">
-        Кажется, вы заблудились. Запрашиваемая страница была удалена или перенесена по другому
+        Кажется, ты заблудился. Запрашиваемая страница была удалена или перенесена по другому
         адресу.
       </p>
-      <router-link to="/" class="btn-cta"> На главную </router-link>
+      <div class="flex flex-wrap items-center justify-center gap-[1rem] w-full max-w-[30rem]">
+        <button
+          @click="router.back()"
+          class="btn-cta !bg-gray-200 !text-black hover:!bg-gray-300 flex-grow whitespace-nowrap text-center"
+        >
+          Назад
+        </button>
+        <router-link to="/" class="btn-cta flex-grow-[2] whitespace-nowrap text-center">
+          На главную
+        </router-link>
+      </div>
     </section>
   </MainLayout>
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import MainLayout from '@/layout/MainLayout.vue'
+
+const router = useRouter()
 </script>
