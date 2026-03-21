@@ -1,19 +1,11 @@
 <template>
-  <router-link to="/#test" :class="['btn-cta', fullWidth ? '!w-full' : '']" @click="$emit('click')">
-    {{ text }}
-  </router-link>
+  <div class="flex items-center gap-[1.5rem]">
+    <router-link
+      to="/login"
+      class="font-geologica text-[0.9375rem] text-black font-bold hover:text-accent transition-colors hidden sm:block"
+    >
+      Войти
+    </router-link>
+    <router-link to="/register" class="btn-cta"> Регистрация </router-link>
+  </div>
 </template>
-
-<script setup lang="ts">
-interface Props {
-  text?: string
-  fullWidth?: boolean
-}
-
-withDefaults(defineProps<Props>(), {
-  text: 'Записаться на курс',
-  fullWidth: false,
-})
-
-defineEmits(['click'])
-</script>
