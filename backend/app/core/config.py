@@ -9,6 +9,13 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = "student_lms"
     POSTGRES_PORT: int = 5432
 
+    SECRET_KEY: str = "super_secret_key_change_in_production"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+
+    DIRECTUS_URL: str = ""
+    DIRECTUS_API_KEY: str = ""
+
     @property
     def sqlalchemy_database_uri(self) -> str:
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
