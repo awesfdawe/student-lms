@@ -11,6 +11,18 @@ export function useQuiz() {
     return quizData[currentQuestionIndex.value] || null
   })
 
+  const profession = computed(() => {
+    if (experienceScore.value >= 25) return 'Программист'
+    if (experienceScore.value >= 10) return 'UX/UI дизайнер'
+    return '3D-дизайнер'
+  })
+
+  const courseLink = computed(() => {
+    if (experienceScore.value >= 25) return '/course/programmer'
+    if (experienceScore.value >= 10) return '/course/ux-ui'
+    return '/course/3d-designer'
+  })
+
   const resultText = computed(() => {
     if (experienceScore.value >= 25) {
       return 'Вам подходит продвинутый трек. Мы подготовим сложную, ускоренную программу, фокусируясь на создании глубокого пет-проекта для вашего портфолио.'
@@ -43,6 +55,8 @@ export function useQuiz() {
     totalQuestions,
     currentQuestion,
     resultText,
+    profession,
+    courseLink,
     handleAnswer,
     resetQuiz,
   }

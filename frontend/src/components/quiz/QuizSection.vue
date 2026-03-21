@@ -28,11 +28,25 @@
       </div>
 
       <div class="w-full lg:w-1/2 flex flex-col gap-[1.5rem] text-left lg:text-right">
-        <h2 class="text-h2">Ответь на несколько вопросов</h2>
-        <p class="text-body lg:ml-auto max-w-[34.375rem]">
-          Это необходимо для проверки твоих знаний и подбора
-          <span class="text-accent-dark">индивидуального</span> плана обучения
-        </p>
+        <template v-if="!isFinished">
+          <h2 class="text-h2">Ответь на несколько вопросов</h2>
+          <p class="text-body lg:ml-auto max-w-[34.375rem]">
+            Это необходимо для проверки твоих знаний и подбора
+            <span class="text-accent-dark">индивидуального</span> плана обучения
+          </p>
+        </template>
+        <template v-else>
+          <h2 class="text-h2">Твой результат готов!</h2>
+          <p class="text-body lg:ml-auto max-w-[34.375rem]">
+            Ты прирожденный <span class="font-bold">{{ profession }}</span
+            >! У нас есть для тебя специальный
+            <router-link
+              :to="courseLink"
+              class="text-accent font-bold hover:text-accent-dark transition-colors"
+              >курс</router-link
+            >.
+          </p>
+        </template>
       </div>
     </div>
   </section>
@@ -54,6 +68,8 @@ const {
   totalQuestions,
   currentQuestion,
   resultText,
+  profession,
+  courseLink,
   handleAnswer,
   resetQuiz,
 } = useQuiz()

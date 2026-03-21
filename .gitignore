@@ -32,3 +32,5 @@ Thumbs.db
 .nyc_output
 
 /frontend/vite.config.ts.timestamp-*
+
+script.sh
