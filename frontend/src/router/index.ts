@@ -28,7 +28,11 @@ const router = createRouter({
       name: 'about',
       component: () => import('@/views/AboutPage.vue'),
     },
-    // Этот catch-all должен быть строго в самом конце!
+    {
+      path: '/contacts',
+      name: 'contacts',
+      component: () => import('@/views/ContactsPage.vue'),
+    },
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',

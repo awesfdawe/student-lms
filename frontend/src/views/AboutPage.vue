@@ -19,7 +19,15 @@
             реальную практику на проектах, которые не стыдно показать работодателю.
           </p>
         </div>
-        <router-link to="/" class="btn-cta mt-[3rem]"> На главную </router-link>
+        <div class="flex flex-wrap gap-[1rem] mt-[3rem]">
+          <router-link to="/" class="btn-cta"> На главную </router-link>
+          <router-link
+            to="/contacts"
+            class="btn-cta !bg-transparent !text-black border-2 border-accent hover:!bg-accent hover:!text-white"
+          >
+            Наши контакты
+          </router-link>
+        </div>
       </div>
     </section>
   </MainLayout>
