@@ -1,0 +1,75 @@
+services:
+  database:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: directus
+      POSTGRES_PASSWORD: directus_password
+      POSTGRES_DB: directus
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U directus -d directus"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio_admin
+      MINIO_ROOT_PASSWORD: minio_password
+    volumes:
+      - minio_data:/data
+
+  minio-setup:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set myminio http://minio:9000 minio_admin minio_password;
+      /usr/bin/mc mb myminio/directus;
+      /usr/bin/mc anonymous set public myminio/directus;
+      exit 0;
+      "
+
+  directus:
+    image: directus/directus:latest
+    ports:
+      - "8055:8055"
+    volumes:
+      - ./directus-extensions:/directus/extensions
+    depends_on:
+      database:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    restart: always
+    environment:
+      SECRET: "secure-secret-placeholder"
+      KEY: "secure-key-placeholder"
+      ADMIN_EMAIL: "admin@example.com"
+      ADMIN_PASSWORD: "adminpassword"
+      DB_CLIENT: "pg"
+      DB_HOST: "database"
+      DB_PORT: "5432"
+      DB_DATABASE: "directus"
+      DB_USER: "directus"
+      DB_PASSWORD: "directus_password"
+      STORAGE_LOCATIONS: "s3"
+      STORAGE_S3_DRIVER: "s3"
+      STORAGE_S3_KEY: "minio_admin"
+      STORAGE_S3_SECRET: "minio_password"
+      STORAGE_S3_BUCKET: "directus"
+      STORAGE_S3_ENDPOINT: "http://minio:9000"
+      STORAGE_S3_REGION: "us-east-1"
+      STORAGE_S3_FORCE_PATH_STYLE: "true"
+
+volumes:
+  postgres_data:
+  minio_data:
