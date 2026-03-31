@@ -1,8 +1,16 @@
-import { createApp } from 'vue'
+import { createSSRApp } from 'vue'
+import { createPinia } from 'pinia'
 import App from './App.vue'
-import router from './router'
-import pinia from './stores'
-
+import { createRouter } from './router'
 import './assets/style.css'
 
-createApp(App).use(router).use(pinia).mount('#app')
+export function createApp() {
+  const app = createSSRApp(App)
+  const pinia = createPinia()
+  const router = createRouter()
+  
+  app.use(pinia)
+  app.use(router)
+  
+  return { app, pinia, router }
+}
