@@ -19,6 +19,9 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
 
+from app.api.routers import cms
+app.include_router(cms.router, prefix="/api/v1/cms", tags=["cms"])
+
 @app.get("/healthcheck")
 async def healthcheck():
     return {"status": "ok"}
