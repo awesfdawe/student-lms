@@ -13,7 +13,6 @@ yarn-error.log*
 /frontend/dist/
 /backend/dist/
 
-.env
 .env.*
 !.env.example
 
