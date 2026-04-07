@@ -2,6 +2,7 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm.attributes import flag_modified
 import jwt
 from app.core.config import settings
 from app.core.security import (
@@ -92,6 +93,7 @@ async def verify_2fa(body: TwoFactorVerify, db: AsyncSession = Depends(get_db)):
                 is_valid_recovery = True
                 new_codes.pop(idx)
                 user.recovery_codes = new_codes
+                flag_modified(user, "recovery_codes")
                 await db.commit()
                 break
 
