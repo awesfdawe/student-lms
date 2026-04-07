@@ -21,6 +21,12 @@ class Settings(BaseSettings):
     VALKEY_DB: int = 0
     WEBHOOK_SECRET: str = ""
 
+    S3_ENDPOINT: str = "http://localhost:9005"
+    S3_ACCESS_KEY: str = "admin"
+    S3_SECRET_KEY: str = "admin"
+    S3_BUCKET: str = "directus"
+    S3_REGION: str = "us-east-1"
+
     @property
     def valkey_url(self):
         return f"redis://{self.VALKEY_HOST}:{self.VALKEY_PORT}/{self.VALKEY_DB}"

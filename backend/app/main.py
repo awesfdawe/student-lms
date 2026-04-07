@@ -3,13 +3,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.cache import init_cache, close_cache
+from app.core.storage import init_storage, close_storage
 from app.api.routers import auth, users, cms, webhooks
 
 
 @asynccontextmanager
 async def lifespan(app):
     await init_cache()
+    await init_storage()
     yield
+    await close_storage()
     await close_cache()
 
 

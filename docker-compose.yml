@@ -2,7 +2,7 @@ services:
   database:
     image: postgres:15
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -14,31 +14,38 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-  minio:
-    image: minio/minio:latest
-    command: server /data --console-address ":9001"
+  seaweedfs-master:
+    image: chrislusf/seaweedfs
     ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      MINIO_ROOT_USER: minio_admin
-      MINIO_ROOT_PASSWORD: minio_password
+      - "9333:9333"
+    command: "master -ip=seaweedfs-master -port=9333 -mdir=/data"
     volumes:
-      - minio_data:/data
+      - seaweedfs_master_data:/data
 
-  minio-setup:
-    image: minio/mc
+  seaweedfs-volume:
+    image: chrislusf/seaweedfs
+    ports:
+      - "8080:8080"
+    command: "volume -mserver=seaweedfs-master:9333 -ip=seaweedfs-volume -port=8080 -dir=/data"
+    volumes:
+      - seaweedfs_volume_data:/data
     depends_on:
-      - minio
-    entrypoint: >
-      /bin/sh -c "
-      sleep 5;
-      /usr/bin/mc alias set myminio http://minio:9000 minio_admin minio_password;
-      /usr/bin/mc mb myminio/directus;
-      /usr/bin/mc anonymous set public myminio/directus;
-      exit 0;
-      "
+      - seaweedfs-master
+
+  seaweedfs-filer:
+    image: chrislusf/seaweedfs
+    ports:
+      - "8888:8888"
+      - "9005:8333"
+    command: "filer -master=seaweedfs-master:9333 -ip=seaweedfs-filer -port=8888 -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json"
+    volumes:
+      - seaweedfs_filer_data:/data
+    configs:
+      - source: seaweedfs_s3_config
+        target: /etc/seaweedfs/s3.json
+    depends_on:
+      - seaweedfs-master
+      - seaweedfs-volume
 
   redis:
     image: redis:8.6.2
@@ -55,7 +62,7 @@ services:
     depends_on:
       database:
         condition: service_healthy
-      minio:
+      seaweedfs-filer:
         condition: service_started
       redis:
         condition: service_started
@@ -73,10 +80,10 @@ services:
       DB_PASSWORD: "directus_password"
       STORAGE_LOCATIONS: "s3"
       STORAGE_S3_DRIVER: "s3"
-      STORAGE_S3_KEY: "minio_admin"
-      STORAGE_S3_SECRET: "minio_password"
+      STORAGE_S3_KEY: "admin"
+      STORAGE_S3_SECRET: "admin"
       STORAGE_S3_BUCKET: "directus"
-      STORAGE_S3_ENDPOINT: "http://minio:9000"
+      STORAGE_S3_ENDPOINT: "http://seaweedfs-filer:8333"
       STORAGE_S3_REGION: "us-east-1"
       STORAGE_S3_FORCE_PATH_STYLE: "true"
       CACHE_ENABLED: "true"
@@ -85,4 +92,30 @@ services:
 
 volumes:
   postgres_data:
-  minio_data:
+  seaweedfs_master_data:
+  seaweedfs_volume_data:
+  seaweedfs_filer_data:
+
+configs:
+  seaweedfs_s3_config:
+    content: |
+      {
+        "identities": [
+          {
+            "name": "admin",
+            "credentials": [
+              {
+                "accessKey": "admin",
+                "secretKey": "admin"
+              }
+            ],
+            "actions": [
+              "Read",
+              "Write",
+              "List",
+              "Tagging",
+              "Admin"
+            ]
+          }
+        ]
+      }
