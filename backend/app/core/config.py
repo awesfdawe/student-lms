@@ -11,7 +11,8 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str = "super_secret_key_change_in_production"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 240
+    TEMP_TOKEN_EXPIRE_MINUTES: int = 5
 
     DIRECTUS_URL: str = ""
     DIRECTUS_API_KEY: str = ""
@@ -26,6 +27,12 @@ class Settings(BaseSettings):
     S3_SECRET_KEY: str = "admin"
     S3_BUCKET: str = "directus"
     S3_REGION: str = "us-east-1"
+
+    SMTP_HOST: str = "localhost"
+    SMTP_PORT: int = 1025
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_FROM: str = "noreply@student-lms.local"
 
     @property
     def valkey_url(self):

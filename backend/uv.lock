@@ -164,6 +164,15 @@ wheels = [
 ]
 
 [[package]]
+name = "aiosmtplib"
+version = "5.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e7/ad/240a7ce4e50713b111dff8b781a898d8d4770e5d6ad4899103f84c86005c/aiosmtplib-5.1.0.tar.gz", hash = "sha256:2504a23b2b63c9de6bc4ea719559a38996dba68f73f6af4eb97be20ee4c5e6c4", size = 66176, upload-time = "2026-01-25T01:51:11.408Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/37/82/70f2c452acd7ed18c558c8ace9a8cf4fdcc70eae9a41749b5bdc53eb6f45/aiosmtplib-5.1.0-py3-none-any.whl", hash = "sha256:368029440645b486b69db7029208a7a78c6691b90d24a5332ddba35d9109d55b", size = 27778, upload-time = "2026-01-25T01:51:10.026Z" },
+]
+
+[[package]]
 name = "alembic"
 version = "1.18.4"
 source = { registry = "https://pypi.org/simple" }
@@ -263,6 +272,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "aioboto3" },
+    { name = "aiosmtplib" },
     { name = "alembic" },
     { name = "asyncpg" },
     { name = "email-validator" },
@@ -271,6 +281,7 @@ dependencies = [
     { name = "passlib" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
+    { name = "pyotp" },
     { name = "python-multipart" },
     { name = "redis", extra = ["hiredis"] },
     { name = "sqlalchemy" },
@@ -280,6 +291,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "aioboto3", specifier = ">=15.5.0" },
+    { name = "aiosmtplib", specifier = ">=3.0.0" },
     { name = "alembic", specifier = ">=1.18.4" },
     { name = "asyncpg", specifier = ">=0.31.0" },
     { name = "email-validator", specifier = ">=2.3.0" },
@@ -288,6 +300,7 @@ requires-dist = [
     { name = "passlib", specifier = ">=1.7.4" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.13.1" },
+    { name = "pyotp", specifier = ">=2.9.0" },
     { name = "python-multipart", specifier = ">=0.0.22" },
     { name = "redis", extras = ["hiredis"], specifier = ">=7.4.0" },
     { name = "sqlalchemy", specifier = ">=2.0.48" },
@@ -1121,6 +1134,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/52/6d/fffca34caecc4a3f97bda81b2098da5e8ab7efc9a66e819074a11955d87e/pydantic_settings-2.13.1.tar.gz", hash = "sha256:b4c11847b15237fb0171e1462bf540e294affb9b86db4d9aa5c01730bdbe4025", size = 223826, upload-time = "2026-02-19T13:45:08.055Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/00/4b/ccc026168948fec4f7555b9164c724cf4125eac006e176541483d2c959be/pydantic_settings-2.13.1-py3-none-any.whl", hash = "sha256:d56fd801823dbeae7f0975e1f8c8e25c258eb75d278ea7abb5d9cebb01b56237", size = 58929, upload-time = "2026-02-19T13:45:06.034Z" },
+]
+
+[[package]]
+name = "pyotp"
+version = "2.9.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/b2/1d5994ba2acde054a443bd5e2d384175449c7d2b6d1a0614dbca3a63abfc/pyotp-2.9.0.tar.gz", hash = "sha256:346b6642e0dbdde3b4ff5a930b664ca82abfa116356ed48cc42c7d6590d36f63", size = 17763, upload-time = "2023-07-27T23:41:03.295Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c3/c0/c33c8792c3e50193ef55adb95c1c3c2786fe281123291c2dbf0eaab95a6f/pyotp-2.9.0-py3-none-any.whl", hash = "sha256:81c2e5865b8ac55e825b0358e496e1d9387c811e85bb40e71a3b29b288963612", size = 13376, upload-time = "2023-07-27T23:41:01.685Z" },
 ]
 
 [[package]]
