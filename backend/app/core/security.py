@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
+import secrets
 import jwt
 import pyotp
 from app.core.config import settings
@@ -33,6 +34,9 @@ def generate_totp_secret():
 def verify_totp(secret, code):
     totp = pyotp.TOTP(secret)
     return totp.verify(code)
+
+def generate_recovery_codes(count=10):
+    return [secrets.token_hex(4) for _ in range(count)]
 
 def get_totp_uri(secret, email):
     totp = pyotp.TOTP(secret)

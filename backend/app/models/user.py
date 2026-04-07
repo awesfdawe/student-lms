@@ -1,4 +1,4 @@
-from sqlalchemy import String, Boolean, Column, Integer
+from sqlalchemy import String, Boolean, Column, Integer, JSON
 from app.models.base import Base
 
 class User(Base):
@@ -11,3 +11,4 @@ class User(Base):
     is_superuser = Column(Boolean, default=False)
     totp_secret = Column(String, nullable=True)
     is_2fa_enabled = Column(Boolean, default=False)
+    recovery_codes = Column(JSON, nullable=True)

@@ -10,5 +10,5 @@ class Course(Base):
     duration = Column(String(255))
     feature = Column(String(255))
     description = Column(Text)
-    price = Column(Integer, default=0) # Цена в рублях
+    price = Column(Integer, default=0)
     image_path = Column(String(255))
