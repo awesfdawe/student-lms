@@ -8,9 +8,9 @@ services:
     environment:
       POSTGRES_USER: directus
       POSTGRES_PASSWORD: directus_password
-      POSTGRES_DB: directus
+      POSTGRES_DB: student_lms
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U directus -d directus"]
+      test: ["CMD-SHELL", "pg_isready -U directus -d student_lms"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -55,10 +55,12 @@ services:
 
   directus:
     image: directus/directus:latest
+    command: ["sh", "-c", "node cli.js bootstrap && node cli.js schema apply ./directus-schema.yaml --yes && node cli.js start"]
     ports:
       - "8055:8055"
     volumes:
       - ./directus-extensions:/directus/extensions
+      - ./directus-schema.yaml:/directus/directus-schema.yaml
     depends_on:
       database:
         condition: service_healthy
@@ -75,7 +77,7 @@ services:
       DB_CLIENT: "pg"
       DB_HOST: "database"
       DB_PORT: "5432"
-      DB_DATABASE: "directus"
+      DB_DATABASE: "student_lms"
       DB_USER: "directus"
       DB_PASSWORD: "directus_password"
       STORAGE_LOCATIONS: "s3"
