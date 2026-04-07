@@ -4,6 +4,8 @@ package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
+.agents/
+
 dist/
 dist-ssr/
 *.local
