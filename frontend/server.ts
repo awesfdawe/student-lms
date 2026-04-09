@@ -7,7 +7,7 @@ import Redis from 'ioredis'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const isProduction = process.env.NODE_ENV === 'production'
 
-const redis = new Redis(process.env.REDIS_URL || 'redis://valkey:6379/0')
+const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379/0')
 
 export async function createServer() {
   const app = express()
@@ -29,11 +29,23 @@ export async function createServer() {
   app.use('*', async (req, res, next) => {
     try {
       const url = req.originalUrl
-      const cacheKey = `ssr_page:${url}`
       
-      const cachedHtml = await redis.get(cacheKey)
-      if (cachedHtml) {
-        return res.status(200).set({ 'Content-Type': 'text/html' }).end(cachedHtml)
+      const publicRoutes = ['/', '/about', '/contacts', '/faq', '/free', '/privacy-policy', '/terms-of-service']
+      const isPublicRoute = publicRoutes.includes(url) || url.startsWith('/course/')
+      const hasAuthCookie = req.headers.cookie?.includes('access_token')
+      
+      const shouldCache = isPublicRoute && !hasAuthCookie
+      const cacheKey = `ssr_page:${url}`
+
+      if (shouldCache) {
+        try {
+          const cachedHtml = await redis.get(cacheKey)
+          if (cachedHtml) {
+            return res.status(200).set({ 'Content-Type': 'text/html' }).end(cachedHtml)
+          }
+        } catch(err) {
+          console.warn("Redis is not available, skipping cache.")
+        }
       }
 
       let template, render
@@ -53,7 +65,11 @@ export async function createServer() {
         .replace('', appHtml)
         .replace('', stateScript)
 
-      await redis.set(cacheKey, html, 'EX', 3600)
+      if (shouldCache) {
+        try {
+          await redis.set(cacheKey, html, 'EX', 3600)
+        } catch(err) {}
+      }
 
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
     } catch (e: any) {

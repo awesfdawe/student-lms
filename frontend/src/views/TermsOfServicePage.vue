@@ -1,43 +1,38 @@
 <template>
   <MainLayout>
-    <section
-      class="relative z-10 pt-[7rem] md:pt-[10rem] pb-[5rem] px-[1.25rem] xl:px-[5.625rem] max-w-[60rem] mx-auto min-h-[calc(100vh-5.625rem)]"
-    >
-      <h1
-        class="font-geologica font-bold text-[2.5rem] md:text-[3.5rem] text-black mb-[2rem] animate-fade-up"
-      >
-        Публичная оферта
-      </h1>
-      <div
-        class="prose prose-lg prose-blue max-w-none font-roboto text-black/80 animate-fade-up"
-        style="animation-delay: 0.1s"
-      >
-        <p class="mb-4"><strong>1. Предмет договора</strong></p>
-        <p class="mb-4">
-          Настоящий документ является публичной офертой ООО "СКИЛЛФОРДЖ" в соответствии со ст. 437
-          Гражданского кодекса РФ. Оферта определяет условия предоставления платного доступа к
-          образовательным материалам (курсам, программам ДПО) посредством Платформы.
-        </p>
-        <p class="mb-4"><strong>2. Условия оказания услуг и доступ</strong></p>
-        <p class="mb-4">
-          Доступ к образовательным материалам предоставляется Пользователю после прохождения
-          процедуры регистрации и 100% предоплаты стоимости выбранного курса (если не указано иное,
-          например, при покупке в рассрочку через банки-партнеры).
-        </p>
-      </div>
-      <div class="flex flex-wrap gap-[1rem] mt-[3rem]">
-        <button @click="router.back()" class="btn-cta !bg-gray-200 !text-black hover:!bg-gray-300">
-          Назад
-        </button>
-        <router-link to="/" class="btn-cta"> На главную </router-link>
-      </div>
-    </section>
+    <div class="page-wrapper layout-container py-[4rem] mt-[5.625rem] min-h-[calc(100vh-5.625rem)]">
+      <template v-if="pageData">
+        <h1 class="text-4xl font-bold mb-6 text-black" v-text="pageData.title"></h1>
+        <div class="prose max-w-none text-black/80" v-html="pageData.content || ''"></div>
+        <div class="prose max-w-none mt-8 text-black/80" v-if="pageData.additional_content" v-html="pageData.additional_content"></div>
+      </template>
+      <template v-else>
+        <div class="flex items-center justify-center h-full pt-[10rem]">
+          <p class="text-xl text-black/50">{{ t('system_loading') }}</p>
+        </div>
+      </template>
+    </div>
   </MainLayout>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { computed, onServerPrefetch, onMounted } from 'vue'
 import MainLayout from '@/layout/MainLayout.vue'
+import { useContent } from '@/composables/useContent'
 
-const router = useRouter()
+const { fetchPage, fetchContent, store, t } = useContent()
+const pageData = computed(() => store.pages['terms_of_service'])
+
+const loadData = async () => {
+  await fetchContent()
+  await fetchPage('terms_of_service')
+}
+
+onServerPrefetch(loadData)
+
+onMounted(() => {
+  if (!pageData.value) {
+    loadData()
+  }
+})
 </script>

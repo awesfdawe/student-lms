@@ -1,68 +1,44 @@
 <template>
-  <section class="relative z-10 pt-[5rem] md:pt-[10rem] pb-[3rem] md:pb-[6rem] layout-container">
-    <div
-      ref="sectionRef"
-      class="grid grid-cols-1 lg:grid-cols-2 gap-[1.5rem] md:gap-[2.5rem] transition-all duration-1000 transform"
-      :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[3rem]'"
-    >
-      <div class="flex flex-col justify-center mb-[2rem] lg:mb-0">
-        <CoursesTitle />
+  <section class="py-[4rem] md:py-[6rem] bg-white relative z-10">
+    <div class="layout-container">
+      <CoursesTitle />
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[1.5rem] md:gap-[2.5rem] mt-12 animate-fade-up">
+        <CourseCard
+          v-for="course in displayCourses"
+          :key="course.id"
+          :title="course.title"
+          :duration="course.duration"
+          :feature="course.feature"
+          :image="course.image || '/src/assets/images/course-programmer.jpg'"
+          :link="'/course/' + course.slug"
+        />
       </div>
-
-      <CourseCard
-        title="UX/UI дизайнер"
-        duration="3 месяца"
-        feature="помощь в трудоустройстве"
-        image="/src/assets/images/course-ux-ui.jpg"
-        link="/course/ux-ui"
-      />
-
-      <CourseCard
-        title="Программист"
-        duration="6 месяцев"
-        feature="помощь в трудоустройстве"
-        image="/src/assets/images/course-programmer.jpg"
-        link="/course/programmer"
-      />
-
-      <CourseCard
-        title="3D-дизайнер"
-        duration="3 месяца"
-        feature="помощь в трудоустройстве"
-        image="/src/assets/images/course-3d.jpg"
-        link="/course/3d-designer"
-      />
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, onServerPrefetch, onMounted } from 'vue'
 import CoursesTitle from './CoursesTitle.vue'
 import CourseCard from './CourseCard.vue'
+import { useContent } from '@/composables/useContent'
 
-const sectionRef = ref<HTMLElement | null>(null)
-const isVisible = ref(false)
-let observer: IntersectionObserver | null = null
+const { fetchCourses, courseList } = useContent()
 
-onMounted(() => {
-  observer = new IntersectionObserver(
-    (entries) => {
-      const entry = entries[0]
-      if (entry?.isIntersecting) {
-        isVisible.value = true
-        if (sectionRef.value) observer?.unobserve(sectionRef.value)
-      }
-    },
-    { threshold: 0.1 },
-  )
-
-  if (sectionRef.value) {
-    observer.observe(sectionRef.value)
-  }
+const displayCourses = computed(() => {
+  const list = Array.isArray(courseList.value) ? courseList.value : []
+  return list.filter((c: any) => c !== null && c !== undefined)
 })
 
-onUnmounted(() => {
-  if (observer) observer.disconnect()
+const loadData = async () => {
+  await fetchCourses()
+}
+
+onServerPrefetch(loadData)
+
+onMounted(() => {
+  if (!courseList.value || courseList.value.length === 0) {
+    loadData()
+  }
 })
 </script>

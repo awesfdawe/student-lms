@@ -1,22 +1,17 @@
 <template>
-  <div class="flex flex-col gap-[1.5rem] max-w-[33.9375rem]">
-    <h2 class="font-geologica font-bold text-[2.5rem] md:text-[3rem] leading-[1.2] text-black">
-      Выбери, что по душе
-    </h2>
-    <div class="flex flex-col gap-[1rem]">
-      <p
-        class="font-roboto font-normal text-[1rem] md:text-[1.25rem] leading-[1.4] tracking-[0.01em] text-black"
-      >
-        Подбор современных курсов с использованием множества различных методик обучения на любой
-        вкус
-      </p>
-      <p
-        class="font-roboto font-normal text-[1rem] md:text-[1.25rem] leading-[1.4] tracking-[0.01em] text-black"
-      >
-        На курсе вы будете выполнять индивидуальные задания, разработанные нашими преподавателями
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 animate-fade-up">
+    <div class="max-w-[40rem]">
+      <h2 class="text-3xl md:text-5xl font-bold text-black mb-4">
+        {{ landingPage.courses_title || 'Наши курсы' }}
+      </h2>
+      <p class="text-lg text-black/70">
+        {{ landingPage.courses_desc_1 || 'Развивайся вместе с нами' }}
       </p>
     </div>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useContent } from '@/composables/useContent'
+const { landingPage } = useContent()
+</script>
