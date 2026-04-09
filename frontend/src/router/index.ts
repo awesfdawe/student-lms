@@ -6,6 +6,7 @@ import AboutPage from '@/views/AboutPage.vue'
 import ContactsPage from '@/views/ContactsPage.vue'
 import LoginPage from '@/views/LoginPage.vue'
 import RegisterPage from '@/views/RegisterPage.vue'
+import ProfilePage from '@/views/ProfilePage.vue'
 import FaqPage from '@/views/FaqPage.vue'
 import PrivacyPolicyPage from '@/views/PrivacyPolicyPage.vue'
 import TermsOfServicePage from '@/views/TermsOfServicePage.vue'
@@ -49,6 +50,11 @@ export function createRouter() {
         path: '/register',
         name: 'register',
         component: RegisterPage,
+      },
+      {
+        path: '/profile',
+        name: 'profile',
+        component: ProfilePage,
       },
       {
         path: '/faq',

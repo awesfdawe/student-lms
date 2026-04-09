@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text, Boolean
 from app.models.base import Base
 
 class Course(Base):
@@ -11,4 +11,5 @@ class Course(Base):
     feature = Column(String(255))
     description = Column(Text)
     price = Column(Integer, default=0)
+    is_free = Column(Boolean, default=False)
     image_path = Column(String(255))

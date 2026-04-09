@@ -22,18 +22,21 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 DIRECTUS_PREFIX = "directus_"
 
-
 def include_name(name, type_, parent_names):
     if type_ == "table" and name is not None:
         return not name.startswith(DIRECTUS_PREFIX)
     return True
 
-
 def include_object(object, name, type_, reflected, compare_to):
     if type_ == "table" and name is not None:
-        return not name.startswith(DIRECTUS_PREFIX)
+        # Игнорировать системные таблицы directus
+        if name.startswith(DIRECTUS_PREFIX):
+            return False
+        # ВАЖНО: Если таблица есть в БД (reflected=True), но её нет в наших моделях, 
+        # значит это таблица контента Directus - запрещаем Alembic её удалять!
+        if reflected and name not in target_metadata.tables:
+            return False
     return True
-
 
 def run_migrations_offline():
     url = config.get_main_option("sqlalchemy.url")
@@ -48,7 +51,6 @@ def run_migrations_offline():
     with context.begin_transaction():
         context.run_migrations()
 
-
 def do_run_migrations(connection):
     context.configure(
         connection=connection,
@@ -58,7 +60,6 @@ def do_run_migrations(connection):
     )
     with context.begin_transaction():
         context.run_migrations()
-
 
 async def run_async_migrations():
     connectable = async_engine_from_config(
@@ -70,10 +71,8 @@ async def run_async_migrations():
         await connection.run_sync(do_run_migrations)
     await connectable.dispose()
 
-
 def run_migrations_online():
     asyncio.run(run_async_migrations())
-
 
 if context.is_offline_mode():
     run_migrations_offline()

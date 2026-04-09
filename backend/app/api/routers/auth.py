@@ -58,7 +58,7 @@ async def login(db: AsyncSession = Depends(get_db), form_data: OAuth2PasswordReq
     return Token(access_token=access_token)
 
 @router.post("/login/verify-2fa", response_model=Token)
-async def verify_2fa(body: TwoFactorVerify, db: AsyncSession = Depends(get_db)):
+async def verify_2fa(body: TwoFactorVerify, db: AsyncSession = Depends(get_db), r = Depends(get_redis)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid or expired temporary token",
@@ -73,7 +73,6 @@ async def verify_2fa(body: TwoFactorVerify, db: AsyncSession = Depends(get_db)):
     except jwt.PyJWTError:
         raise credentials_exception
 
-    r = get_redis()
     if r:
         attempts = await r.get(f"2fa_fail:{body.temp_token}")
         if attempts and int(attempts) >= 5:
@@ -83,7 +82,13 @@ async def verify_2fa(body: TwoFactorVerify, db: AsyncSession = Depends(get_db)):
     if not user or not user.totp_secret:
         raise credentials_exception
 
-    is_valid_totp = verify_totp(user.totp_secret, body.code)
+    is_valid_totp = False
+    try:
+        is_valid_totp = verify_totp(user.totp_secret, body.code)
+    except Exception:
+        # Игнорируем ошибку парсинга pyotp (например, если введен код восстановления не в base32)
+        pass
+
     is_valid_recovery = False
     
     if not is_valid_totp and user.recovery_codes:
@@ -132,8 +137,15 @@ async def enable_2fa(current_user: User = Depends(get_current_user), db: AsyncSe
 async def confirm_2fa(body: TwoFactorCode, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if not current_user.totp_secret:
         raise HTTPException(status_code=400, detail="Call /2fa/enable first")
-    if not verify_totp(current_user.totp_secret, body.code):
+    
+    try:
+        is_valid = verify_totp(current_user.totp_secret, body.code)
+    except Exception:
+        is_valid = False
+
+    if not is_valid:
         raise HTTPException(status_code=400, detail="Invalid TOTP code")
+    
     current_user.is_2fa_enabled = True
     await db.commit()
     return {"status": "2fa_enabled"}
@@ -144,7 +156,13 @@ async def disable_2fa(body: TwoFactorDisable, current_user: User = Depends(get_c
         raise HTTPException(status_code=400, detail="2FA not enabled")
     if not verify_password(body.password, current_user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
-    if not verify_totp(current_user.totp_secret, body.code):
+    
+    try:
+        is_valid_totp = verify_totp(current_user.totp_secret, body.code)
+    except Exception:
+        is_valid_totp = False
+
+    if not is_valid_totp:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid 2FA code")
     
     current_user.is_2fa_enabled = False
@@ -152,3 +170,4 @@ async def disable_2fa(body: TwoFactorDisable, current_user: User = Depends(get_c
     current_user.recovery_codes = None
     await db.commit()
     return {"status": "2fa_disabled"}
+

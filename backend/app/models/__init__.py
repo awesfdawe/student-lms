@@ -5,6 +5,7 @@ from app.models.faq import FAQ
 from app.models.dictionary import UIDictionary
 from app.models.globals import GlobalSettings, LandingPage
 from app.models.quiz import QuizQuestion, QuizAnswer
+from app.models.page import Page
 
 __all__ = [
     "Base",
@@ -15,5 +16,6 @@ __all__ = [
     "GlobalSettings",
     "LandingPage",
     "QuizQuestion",
-    "QuizAnswer"
+    "QuizAnswer",
+    "Page"
 ]
