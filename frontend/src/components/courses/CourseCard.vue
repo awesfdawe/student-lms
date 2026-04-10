@@ -5,7 +5,7 @@
   >
     <div
       class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-      :style="{ backgroundImage: `url(${image})` }"
+      :style="{ backgroundImage: bgImage }"
     ></div>
 
     <div
@@ -24,6 +24,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 interface Props {
   title: string
   duration: string
@@ -32,7 +34,16 @@ interface Props {
   link?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   link: '#',
+})
+
+const bgImage = computed(() => {
+  const img = props.image
+  if (!img) return 'none'
+  if (img.startsWith('http') || img.startsWith('/api/')) {
+    return `url('${img}')`
+  }
+  return `url('/api/v1/files/${img.split('/').pop()}')`
 })
 </script>

@@ -1,3 +1,4 @@
+import http from 'node:http'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -11,6 +12,26 @@ const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379/0')
 
 export async function createServer() {
   const app = express()
+
+  app.use('/api', (req, res, next) => {
+    const options = {
+      hostname: '127.0.0.1',
+      port: 8000,
+      path: req.originalUrl,
+      method: req.method,
+      headers: { ...req.headers, host: '127.0.0.1:8000' }
+    };
+    const proxyReq = http.request(options, (proxyRes) => {
+      res.writeHead(proxyRes.statusCode || 500, proxyRes.headers);
+      proxyRes.pipe(res, { end: true });
+    });
+    req.pipe(proxyReq, { end: true });
+    proxyReq.on('error', (err) => {
+      console.error('[Proxy Error]:', err.message);
+      res.status(500).end();
+    });
+  })
+
   let vite: any
 
   if (!isProduction) {

@@ -1,16 +1,18 @@
+import subprocess
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.cache import init_cache, close_cache
 from app.core.storage import init_storage, close_storage
-from app.api.routers import auth, users, cms, webhooks
+from app.api.routers import auth, users, cms, webhooks, files
 
 
 @asynccontextmanager
 async def lifespan(app):
     await init_cache()
     await init_storage()
+    subprocess.Popen(['python', 'seed_assets.py'])
     yield
     await close_storage()
     await close_cache()
@@ -34,6 +36,7 @@ app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
 app.include_router(cms.router, prefix="/api/v1/cms", tags=["cms"])
 app.include_router(webhooks.router, prefix="/api/webhooks", tags=["webhooks"])
+app.include_router(files.router, prefix="/api/v1/files", tags=["files"])
 
 
 @app.get("/healthcheck")

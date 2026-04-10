@@ -193,7 +193,7 @@
   width: 100%;
   max-width: 87.5rem;
   height: 56.25rem;
-  background-image: url('@/assets/svg/background-hero-block.svg');
+  background-image: url('/api/v1/files/background-hero-block.svg');
   background-repeat: no-repeat;
   background-position: center top;
   background-size: cover;
