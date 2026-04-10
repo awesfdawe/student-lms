@@ -1,3 +1,37 @@
+
+import json
+from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi.responses import Response
+
+class SafeCMSMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith("/api/v1/cms") and response.headers.get("content-type") == "application/json":
+            body = b""
+            async for chunk in response.body_iterator:
+                body += chunk
+            try:
+                data = json.loads(body.decode("utf-8"))
+                
+                def sanitize(obj):
+                    if isinstance(obj, dict):
+                        return {k: (sanitize(v) if v is not None else "") for k, v in obj.items()}
+                    elif isinstance(obj, list):
+                        return [sanitize(v) for v in obj]
+                    return obj
+                
+                safe_data = sanitize(data)
+                body = json.dumps(safe_data).encode("utf-8")
+                
+                headers = dict(response.headers)
+                if "content-length" in headers:
+                    headers["content-length"] = str(len(body))
+                return Response(content=body, status_code=response.status_code, headers=headers)
+            except Exception:
+                headers = dict(response.headers)
+                return Response(content=body, status_code=response.status_code, headers=headers)
+        return response
+
 import subprocess
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -23,6 +57,7 @@ app = FastAPI(
     openapi_url="/openapi.json",
     lifespan=lifespan,
 )
+app.add_middleware(SafeCMSMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

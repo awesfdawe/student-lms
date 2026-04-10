@@ -7,7 +7,7 @@ set +a
 DIRECTUS_URL=${DIRECTUS_URL:-"http://localhost:8055"}
 
 cd backend
-uv run alembic upgrade head
+uv run alembic upgrade head || uv run alembic stamp head
 cd ..
 
 until $(curl --output /dev/null --silent --head --fail "$DIRECTUS_URL/server/ping"); do
@@ -31,6 +31,9 @@ async def main():
             f"{directus_url}/auth/login", 
             json={"email": email, "password": password}
         )
+        if login.status_code != 200:
+            return
+            
         token = login.json()["data"]["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
 
@@ -61,6 +64,74 @@ async def main():
                     json={"type": new_type}, 
                     headers=headers
                 )
+
+        flows = [
+            {
+                "name": "Sync Users",
+                "icon": "sync",
+                "color": "#2196F3",
+                "trigger": "event",
+                "status": "active",
+                "options": {
+                    "type": "action",
+                    "scope": ["items.create", "items.update", "items.delete"],
+                    "collections": ["users"]
+                }
+            },
+            {
+                "name": "Invalidate File Cache",
+                "icon": "cached",
+                "color": "#FFC107",
+                "trigger": "event",
+                "status": "active",
+                "options": {
+                    "type": "action",
+                    "scope": ["items.create", "items.update", "items.delete"],
+                    "collections": ["directus_files"]
+                }
+            },
+            {
+                "name": "FastAPI Cache Invalidation",
+                "icon": "bolt",
+                "color": "#6644FF",
+                "trigger": "event",
+                "status": "active",
+                "options": {
+                    "type": "action",
+                    "scope": ["items.create", "items.update", "items.delete"],
+                    "collections": [
+                        "landing_page", 
+                        "globals", 
+                        "ui_dictionary", 
+                        "pages", 
+                        "courses", 
+                        "faqs", 
+                        "quiz"
+                    ]
+                }
+            }
+        ]
+
+        for flow_payload in flows:
+            flow_res = await client.get(f"{directus_url}/flows?filter[name][_eq]={flow_payload['name']}", headers=headers)
+            if flow_res.status_code == 200 and not flow_res.json().get("data"):
+                create_flow = await client.post(f"{directus_url}/flows", headers=headers, json=flow_payload)
+                if create_flow.status_code == 200:
+                    flow_id = create_flow.json()["data"]["id"]
+                    op_payload = {
+                        "name": "Call Webhook",
+                        "key": "call_webhook",
+                        "type": "webhook",
+                        "position_x": 1,
+                        "position_y": 1,
+                        "flow": flow_id,
+                        "options": {
+                            "method": "POST",
+                            "url": "http://host.docker.internal:8000/api/webhooks/directus_update",
+                            "payload": '{"collection": "{{$trigger.collection}}", "event": "{{$trigger.event}}", "payload": {}}'
+                        }
+                    }
+                    await client.post(f"{directus_url}/operations", headers=headers, json=op_payload)
 
 asyncio.run(main())
 EOF

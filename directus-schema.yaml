@@ -210,6 +210,30 @@ collections:
       versioning: false
     schema:
       name: ui_dictionary
+  - collection: users
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: users
+      color: null
+      display_template: null
+      group: null
+      hidden: false
+      icon: group
+      item_duplication_fields: null
+      note: Frontend Users
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: users
 fields:
   - collection: courses
     field: id
@@ -2325,6 +2349,206 @@ fields:
       name: value
       table: ui_dictionary
       data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: users
+    field: id
+    type: integer
+    meta:
+      collection: users
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: true
+      required: false
+      searchable: true
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: id
+      table: users
+      data_type: integer
+      default_value: nextval('users_id_seq'::regclass)
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: false
+      is_unique: true
+      is_indexed: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: true
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: users
+    field: email
+    type: string
+    meta:
+      collection: users
+      conditions: null
+      display: null
+      display_options: null
+      field: email
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: email
+      table: users
+      data_type: character varying
+      default_value: null
+      max_length: -5
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: users
+    field: is_active
+    type: boolean
+    meta:
+      collection: users
+      conditions: null
+      display: null
+      display_options: null
+      field: is_active
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: is_active
+      table: users
+      data_type: boolean
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: users
+    field: is_superuser
+    type: boolean
+    meta:
+      collection: users
+      conditions: null
+      display: null
+      display_options: null
+      field: is_superuser
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: is_superuser
+      table: users
+      data_type: boolean
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: users
+    field: is_2fa_enabled
+    type: boolean
+    meta:
+      collection: users
+      conditions: null
+      display: null
+      display_options: null
+      field: is_2fa_enabled
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: is_2fa_enabled
+      table: users
+      data_type: boolean
       default_value: null
       max_length: null
       numeric_precision: null
