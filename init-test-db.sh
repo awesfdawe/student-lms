@@ -21,7 +21,7 @@ set -a
 set +a
 
 cd backend
-uv run alembic upgrade head || uv run alembic stamp head
+uv run alembic upgrade head
 cd ..
 
 until $(curl --output /dev/null --silent --head --fail "$DIRECTUS_URL/server/ping"); do
