@@ -1,10 +1,22 @@
 #!/bin/bash
 
-set -a
-[ -f backend/.env ] && . backend/.env
-set +a
+cat << 'EOF' > backend/.env
+DIRECTUS_URL=http://localhost:8055
+DIRECTUS_ADMIN_EMAIL=admin@example.com
+DIRECTUS_ADMIN_PASSWORD=adminpassword
+REDIS_URL=redis://127.0.0.1:6379
+POSTGRES_SERVER=127.0.0.1
+POSTGRES_PORT=5433
+POSTGRES_USER=directus
+POSTGRES_PASSWORD=directus_password
+POSTGRES_DB=student_lms
+SQLALCHEMY_DATABASE_URI=postgresql+asyncpg://directus:directus_password@127.0.0.1:5433/student_lms
+WEBHOOK_SECRET=dev_secret_key
+EOF
 
-DIRECTUS_URL=${DIRECTUS_URL:-"http://localhost:8055"}
+set -a
+. backend/.env
+set +a
 
 cd backend
 uv run alembic upgrade head || uv run alembic stamp head
@@ -137,6 +149,6 @@ asyncio.run(main())
 EOF
 
 cd backend
-uv run python ../seed_test_data.py
+uv run python seed.py
 cd ..
 rm seed_test_data.py

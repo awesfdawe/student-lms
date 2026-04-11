@@ -18,7 +18,6 @@ pnpm run dev
 - In second one
 ```
 cd backend
-source .venv/bin/activate
-alembic upgrade head
-uvicorn app.main:app --reload --port 8000
+uv run alembic upgrade head
+uv run uvicorn app.main:app --reload --port 8000
 ```
