@@ -1,59 +1,59 @@
 <template>
   <MainLayout>
     <div class="page-wrapper layout-container py-[4rem] mt-[5.625rem] min-h-[calc(100vh-5.625rem)]">
-      <div v-if="pageData" class="mb-8">
-        <h1 class="text-4xl font-bold mb-6 text-black" v-text="pageData.title"></h1>
-        <div class="prose max-w-none text-black/80" v-html="pageData.content || ''"></div>
-        <div class="prose max-w-none mt-8 text-black/80" v-if="pageData.additional_content" v-html="pageData.additional_content"></div>
+      <div v-if="pageData" class="mb-[4rem] text-center">
+        <h1 class="text-h2 mb-[1.5rem]" v-text="pageData.title"></h1>
+        <div class="text-body text-black/60 max-w-[40rem] mx-auto" v-html="pageData.content || ''"></div>
+        <div class="text-body text-black/60 max-w-[40rem] mx-auto mt-[1rem]" v-if="pageData.additional_content" v-html="pageData.additional_content"></div>
       </div>
       
-      <div class="max-w-md mx-auto bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
-        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Регистрация</h2>
+      <div class="auth-card">
+        <h2 class="text-[1.75rem] font-bold mb-[2.5rem] text-center text-[#2D3149]">Регистрация</h2>
         
-        <form @submit.prevent="handleSubmit" class="space-y-4">
-          <div v-if="error" class="p-3 bg-red-100 text-red-700 rounded-md text-sm">
+        <form @submit.prevent="handleSubmit" class="space-y-[1.5rem]">
+          <div v-if="error" class="p-[1rem] bg-red-50 text-red-600 rounded-[1rem] text-[0.9375rem] text-center font-medium">
             {{ error }}
           </div>
-          <div v-if="success" class="p-3 bg-green-100 text-green-700 rounded-md text-sm">
+          <div v-if="success" class="p-[1rem] bg-green-50 text-green-600 rounded-[1rem] text-[0.9375rem] text-center font-medium">
             Регистрация успешна! Перенаправление на страницу входа...
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label class="form-label">Email</label>
             <input 
               v-model="form.email" 
               type="email" 
               required 
-              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              class="input-base"
             />
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Пароль</label>
+            <label class="form-label">Пароль</label>
             <input 
               v-model="form.password" 
               type="password" 
               required 
               minlength="8"
-              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              class="input-base"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Подтвердите пароль</label>
+            <label class="form-label">Подтвердите пароль</label>
             <input 
               v-model="form.passwordConfirm" 
               type="password" 
               required 
               minlength="8"
-              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              class="input-base"
             />
           </div>
           
           <button 
             type="submit" 
             :disabled="loading"
-            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+            class="btn-primary mt-[1rem]"
           >
             {{ loading ? 'Загрузка...' : 'Зарегистрироваться' }}
           </button>

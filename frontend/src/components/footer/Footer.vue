@@ -1,26 +1,32 @@
 <template>
-  <footer class="bg-gray-100 py-10 mt-auto border-t border-gray-200">
-    <div class="layout-container grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div class="flex flex-col gap-4">
-        <div class="font-bold text-2xl text-black">SKILLFORGE</div>
-        <p class="text-black/70">{{ globals.footer_description }}</p>
-        <p class="text-sm text-black/50">{{ globals.footer_license }}</p>
+  <footer class="footer-wrapper">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="font-geologica font-bold text-[1.5rem] text-[#2D3149]">SKILLFORGE</div>
+        <p class="text-[0.9375rem] text-black/60">{{ globals.footer_description }}</p>
       </div>
       
-      <div class="flex flex-col gap-3">
-        <a :href="'tel:' + globals.phone" class="font-bold text-lg hover:text-primary transition-colors">{{ globals.phone }}</a>
-        <a :href="'mailto:' + globals.email" class="hover:text-primary transition-colors">{{ globals.email }}</a>
-        <p class="text-black/70">{{ globals.office_address }}</p>
-      </div>
+      <nav class="footer-nav">
+        <router-link to="/free" class="footer-nav-link">{{ t('header_nav_free') }}</router-link>
+        <router-link to="/about" class="footer-nav-link">{{ t('header_nav_about') }}</router-link>
+        <router-link to="/contacts" class="footer-nav-link">{{ t('header_nav_contacts') }}</router-link>
+        <router-link to="/faq" class="footer-nav-link">{{ t('header_nav_faq') }}</router-link>
+      </nav>
 
-      <div class="flex flex-col gap-3">
-        <router-link to="/privacy-policy" class="hover:text-primary transition-colors">{{ t('footer_bottom_privacy') }}</router-link>
-        <router-link to="/terms-of-service" class="hover:text-primary transition-colors">{{ t('footer_bottom_terms') }}</router-link>
-        <router-link to="/contacts" class="btn-cta text-center mt-2">{{ t('global_btn_contact_us') }}</router-link>
+      <div class="footer-cta-container">
+        <div class="flex flex-col items-end gap-2">
+          <a :href="'tel:' + globals.phone" class="font-bold text-[1.125rem] text-[#2D3149] hover:text-[var(--color-accent)] transition-colors">{{ globals.phone }}</a>
+          <a :href="'mailto:' + globals.email" class="text-[0.9375rem] text-black/60 hover:text-[var(--color-accent)] transition-colors">{{ globals.email }}</a>
+        </div>
       </div>
     </div>
-    <div class="layout-container mt-8 pt-6 border-t border-gray-200 text-center text-black/50">
-      {{ globals.footer_copyright }}
+    
+    <div class="footer-bottom">
+      <div class="text-black/50">{{ globals.footer_copyright || '© 2026 ООО СКИЛЛФОРДЖ' }}</div>
+      <div class="footer-bottom-links">
+        <router-link to="/privacy-policy" class="footer-bottom-link">{{ t('footer_bottom_privacy', 'Политика конфиденциальности') }}</router-link>
+        <router-link to="/terms-of-service" class="footer-bottom-link">{{ t('footer_bottom_terms', 'Пользовательское соглашение') }}</router-link>
+      </div>
     </div>
   </footer>
 </template>

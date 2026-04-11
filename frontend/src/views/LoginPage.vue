@@ -1,72 +1,72 @@
 <template>
   <MainLayout>
     <div class="page-wrapper layout-container py-[4rem] mt-[5.625rem] min-h-[calc(100vh-5.625rem)]">
-      <div v-if="pageData" class="mb-8">
-        <h1 class="text-4xl font-bold mb-6 text-black" v-text="pageData.title"></h1>
-        <div class="prose max-w-none text-black/80" v-html="pageData.content || ''"></div>
+      <div v-if="pageData" class="mb-[4rem] text-center">
+        <h1 class="text-h2 mb-[1.5rem]" v-text="pageData.title"></h1>
+        <div class="text-body text-black/60 max-w-[40rem] mx-auto" v-html="pageData.content || ''"></div>
       </div>
       
-      <div class="max-w-md mx-auto bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
-        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">
+      <div class="auth-card">
+        <h2 class="text-[1.75rem] font-bold mb-[2.5rem] text-center text-[#2D3149]">
           {{ step === 1 ? 'Вход' : 'Двухфакторная авторизация' }}
         </h2>
         
-        <form v-if="step === 1" @submit.prevent="handleLogin" class="space-y-4">
-          <div v-if="error" class="p-3 bg-red-100 text-red-700 rounded-md text-sm">
+        <form v-if="step === 1" @submit.prevent="handleLogin" class="space-y-[1.5rem]">
+          <div v-if="error" class="p-[1rem] bg-red-50 text-red-600 rounded-[1rem] text-[0.9375rem] text-center font-medium">
             {{ error }}
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label class="form-label">Email</label>
             <input 
               v-model="form.email" 
               type="email" 
               required 
-              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              class="input-base"
             />
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Пароль</label>
+            <label class="form-label">Пароль</label>
             <input 
               v-model="form.password" 
               type="password" 
               required 
-              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              class="input-base"
             />
           </div>
           
           <button 
             type="submit" 
             :disabled="loading"
-            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+            class="btn-primary mt-[1rem]"
           >
             {{ loading ? 'Загрузка...' : 'Войти' }}
           </button>
         </form>
 
-        <form v-else @submit.prevent="handle2fa" class="space-y-4">
-          <div v-if="error" class="p-3 bg-red-100 text-red-700 rounded-md text-sm">
+        <form v-else @submit.prevent="handle2fa" class="space-y-[1.5rem]">
+          <div v-if="error" class="p-[1rem] bg-red-50 text-red-600 rounded-[1rem] text-[0.9375rem] text-center font-medium">
             {{ error }}
           </div>
-          <p class="text-sm text-gray-600 mb-4">
+          <p class="text-center text-[#3F3F3F] text-[0.9375rem] mb-[1rem]">
             Введите код из приложения-аутентификатора или резервный код восстановления.
           </p>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Код</label>
+            <label class="form-label text-center">Код</label>
             <input 
               v-model="twoFactorCode" 
               type="text" 
               required 
-              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 tracking-widest text-center text-lg"
+              class="input-base text-center tracking-[0.5em] text-[1.25rem] font-bold"
             />
           </div>
           
           <button 
             type="submit" 
             :disabled="loading"
-            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+            class="btn-primary mt-[1rem]"
           >
             {{ loading ? 'Проверка...' : 'Подтвердить' }}
           </button>
