@@ -2576,3 +2576,11 @@ systemFields:
     schema:
       is_indexed: true
 relations: []
+permissions:
+  - collection: directus_files
+    action: read
+    role: null
+    fields:
+      - '*'
+    permissions: null
+    presets: null

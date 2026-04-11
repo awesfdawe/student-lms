@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 cat << 'EOF' > backend/.env
 DIRECTUS_URL=http://localhost:8055
 DIRECTUS_ADMIN_EMAIL=admin@example.com
@@ -28,127 +30,97 @@ done
 
 docker compose exec -T directus npx directus schema apply ./directus-schema.yaml --yes
 
-cat << 'EOF' > seed_test_data.py
-import asyncio
-import httpx
-import os
-
-async def main():
-    directus_url = os.environ.get("DIRECTUS_URL", "http://localhost:8055")
-    email = os.environ.get("DIRECTUS_ADMIN_EMAIL", "admin@example.com")
-    password = os.environ.get("DIRECTUS_ADMIN_PASSWORD", "adminpassword")
-
-    async with httpx.AsyncClient() as client:
-        login = await client.post(
-            f"{directus_url}/auth/login", 
-            json={"email": email, "password": password}
-        )
-        if login.status_code != 200:
-            return
-            
-        token = login.json()["data"]["access_token"]
-        headers = {"Authorization": f"Bearer {token}"}
-
-        assets_path = "seed_data/assets"
-        if os.path.exists(assets_path):
-            for filename in os.listdir(assets_path):
-                filepath = os.path.join(assets_path, filename)
-                if not os.path.isfile(filepath):
-                    continue
-                with open(filepath, "rb") as f:
-                    await client.post(f"{directus_url}/files", headers=headers, files={"file": (filename, f)})
-        
-        await client.post(f"{directus_url}/permissions", headers=headers, json={
-            "role": None, "collection": "directus_files", "action": "read", "fields": ["*"]
-        })
-
-        files_res = await client.get(f"{directus_url}/files", headers=headers)
-        for f in files_res.json().get("data", []):
-            name = f.get("filename_download", "")
-            new_type = None
-            if name.endswith(".svg"): new_type = "image/svg+xml"
-            elif name.endswith((".jpg", ".jpeg")): new_type = "image/jpeg"
-            elif name.endswith(".png"): new_type = "image/png"
-            
-            if new_type:
-                await client.patch(
-                    f"{directus_url}/files/{f['id']}", 
-                    json={"type": new_type}, 
-                    headers=headers
-                )
-
-        flows = [
-            {
-                "name": "Sync Users",
-                "icon": "sync",
-                "color": "#2196F3",
-                "trigger": "event",
-                "status": "active",
-                "options": {
-                    "type": "action",
-                    "scope": ["items.create", "items.update", "items.delete"],
-                    "collections": ["users"]
-                }
-            },
-            {
-                "name": "Invalidate File Cache",
-                "icon": "cached",
-                "color": "#FFC107",
-                "trigger": "event",
-                "status": "active",
-                "options": {
-                    "type": "action",
-                    "scope": ["items.create", "items.update", "items.delete"],
-                    "collections": ["directus_files"]
-                }
-            },
-            {
-                "name": "FastAPI Cache Invalidation",
-                "icon": "bolt",
-                "color": "#6644FF",
-                "trigger": "event",
-                "status": "active",
-                "options": {
-                    "type": "action",
-                    "scope": ["items.create", "items.update", "items.delete"],
-                    "collections": [
-                        "landing_page", 
-                        "globals", 
-                        "ui_dictionary", 
-                        "pages", 
-                        "courses", 
-                        "faqs", 
-                        "quiz"
-                    ]
-                }
-            }
-        ]
-
-        for flow_payload in flows:
-            flow_res = await client.get(f"{directus_url}/flows?filter[name][_eq]={flow_payload['name']}", headers=headers)
-            if flow_res.status_code == 200 and not flow_res.json().get("data"):
-                create_flow = await client.post(f"{directus_url}/flows", headers=headers, json=flow_payload)
-                if create_flow.status_code == 200:
-                    flow_id = create_flow.json()["data"]["id"]
-                    op_payload = {
-                        "name": "Call Webhook",
-                        "key": "call_webhook",
-                        "type": "webhook",
-                        "position_x": 1,
-                        "position_y": 1,
-                        "flow": flow_id,
-                        "options": {
-                            "method": "POST",
-                            "url": "http://host.docker.internal:8000/api/webhooks/directus_update",
-                            "payload": '{"collection": "{{$trigger.collection}}", "event": "{{$trigger.event}}", "payload": {}}'
-                        }
-                    }
-                    await client.post(f"{directus_url}/operations", headers=headers, json=op_payload)
-
-asyncio.run(main())
-EOF
-
 cd backend
 uv run python seed.py
+uv run python seed_assets.py
 cd ..
-rm seed_test_data.py
+
+get_token() {
+    curl -s -X POST "$DIRECTUS_URL/auth/login" \
+        -H "Content-Type: application/json" \
+        -d "{\"email\":\"$DIRECTUS_ADMIN_EMAIL\",\"password\":\"$DIRECTUS_ADMIN_PASSWORD\"}" \
+        | jq -r '.data.access_token'
+}
+
+TOKEN=$(get_token)
+if [ "$TOKEN" = "null" ] || [ -z "$TOKEN" ]; then
+    echo "Failed to obtain token"
+    exit 1
+fi
+
+create_permission() {
+    POLICY_ID=$(curl -s -H "Authorization: Bearer $TOKEN" \
+        "$DIRECTUS_URL/policies?filter[name][_eq]=Public" | jq -r '.data[0].id // empty')
+
+    if [ -z "$POLICY_ID" ] || [ "$POLICY_ID" == "null" ]; then
+        POLICY_ID=$(curl -s -X POST "$DIRECTUS_URL/policies" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $TOKEN" \
+            -d '{"name": "Public", "icon": "public", "description": "Default public policy", "app_access": false, "admin_access": false}' | jq -r '.data.id')
+    fi
+
+    if [ -z "$POLICY_ID" ] || [ "$POLICY_ID" == "null" ]; then
+        exit 1
+    fi
+
+    CURRENT_POLICIES=$(curl -s -H "Authorization: Bearer $TOKEN" "$DIRECTUS_URL/settings" | jq -c '.data.public_policies // []')
+    NEW_POLICIES=$(echo "$CURRENT_POLICIES" | jq -c --arg id "$POLICY_ID" '(. + [$id]) | unique')
+
+    curl -s -X PATCH "$DIRECTUS_URL/settings" \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Bearer $TOKEN" \
+        -d "{\"public_policies\": $NEW_POLICIES}" > /dev/null
+
+    PERM_ID=$(curl -s -H "Authorization: Bearer $TOKEN" \
+        "$DIRECTUS_URL/permissions?filter[policy][_eq]=$POLICY_ID&filter[collection][_eq]=directus_files&filter[action][_eq]=read" | jq -r '.data[0].id // empty')
+
+    if [ -z "$PERM_ID" ] || [ "$PERM_ID" == "null" ]; then
+        curl -s -X POST "$DIRECTUS_URL/permissions" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $TOKEN" \
+            -d "{\"policy\": \"$POLICY_ID\", \"collection\": \"directus_files\", \"action\": \"read\", \"fields\": [\"*\"]}" > /dev/null
+    fi
+}
+
+create_flow() {
+    local NAME=$1
+    local ICON=$2
+    local COLOR=$3
+    local COLLECTIONS_JSON=$4
+
+    EXISTING=$(curl -s -H "Authorization: Bearer $TOKEN" \
+        "$DIRECTUS_URL/flows?filter[name][_eq]=$NAME" | jq -r '.data[0].id // empty')
+    
+    if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
+        return
+    fi
+
+    FLOW_PAYLOAD=$(jq -n \
+        --arg name "$NAME" \
+        --arg icon "$ICON" \
+        --arg color "$COLOR" \
+        --argjson collections "$COLLECTIONS_JSON" \
+        '{name: $name, icon: $icon, color: $color, trigger: "event", status: "active", options: {type: "action", scope: ["items.create","items.update","items.delete"], collections: $collections}}')
+    
+    FLOW_ID=$(curl -s -X POST "$DIRECTUS_URL/flows" \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Bearer $TOKEN" \
+        -d "$FLOW_PAYLOAD" | jq -r '.data.id')
+
+    OP_PAYLOAD=$(jq -n \
+        --arg flow_id "$FLOW_ID" \
+        '{name: "Call Webhook", key: "call_webhook", type: "webhook", position_x: 1, position_y: 1, flow: $flow_id, options: {method: "POST", url: "http://host.docker.internal:8000/api/webhooks/directus_update", payload: "{\"collection\": \"{{$trigger.collection}}\", \"event\": \"{{$trigger.event}}\", \"payload\": {}}"}}')
+    
+    curl -s -X POST "$DIRECTUS_URL/operations" \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Bearer $TOKEN" \
+        -d "$OP_PAYLOAD" > /dev/null
+}
+
+create_permission
+
+create_flow "Sync Users" "sync" "#2196F3" '["users"]'
+create_flow "Invalidate File Cache" "cached" "#FFC107" '["directus_files"]'
+create_flow "FastAPI Cache Invalidation" "bolt" "#6644FF" '["landing_page","globals","ui_dictionary","pages","courses","faqs","quiz"]'
+
+echo "Done."

@@ -2,7 +2,10 @@
 ---
 ## Launching
 ```
-sudo docker compose up -d
+sudo docker compose down -v --remove-orphans
+```
+```
+sudo docker compose up -d 
 ```
 ```
 sudo ./init-test-db.sh
@@ -18,6 +21,7 @@ pnpm run dev
 - In second one
 ```
 cd backend
+uv sync
 uv run alembic upgrade head
 uv run uvicorn app.main:app --reload --port 8000
 ```
