@@ -55,3 +55,25 @@ def cache(expire=3600):
             return result
         return wrapper
     return decorator
+
+
+async def check_rate_limit(key: str, max_requests: int = 5, window: int = 60):
+    """Check rate limit via Redis. Raises HTTPException(429) if exceeded.
+    Silently skips if Redis is unavailable — never blocks legitimate requests."""
+    from fastapi import HTTPException
+    try:
+        current = await redis_client.get(key)
+        if current and int(current) >= max_requests:
+            raise HTTPException(
+                status_code=429,
+                detail="Too many requests, please try again later",
+            )
+        pipe = redis_client.pipeline()
+        pipe.incr(key)
+        pipe.expire(key, window)
+        await pipe.execute()
+    except HTTPException:
+        raise
+    except Exception:
+        pass
+

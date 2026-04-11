@@ -1,7 +1,11 @@
 
 import json
+import logging
+import nh3
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.responses import Response
+
+logger = logging.getLogger(__name__)
 
 class SafeCMSMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
@@ -15,9 +19,13 @@ class SafeCMSMiddleware(BaseHTTPMiddleware):
                 
                 def sanitize(obj):
                     if isinstance(obj, dict):
-                        return {k: (sanitize(v) if v is not None else "") for k, v in obj.items()}
+                        return {k: sanitize(v) for k, v in obj.items()}
                     elif isinstance(obj, list):
                         return [sanitize(v) for v in obj]
+                    elif isinstance(obj, str):
+                        return nh3.clean(obj)
+                    elif obj is None:
+                        return ""
                     return obj
                 
                 safe_data = sanitize(data)
@@ -32,7 +40,7 @@ class SafeCMSMiddleware(BaseHTTPMiddleware):
                 return Response(content=body, status_code=response.status_code, headers=headers)
         return response
 
-import subprocess
+import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -46,8 +54,18 @@ from app.api.routers import auth, users, cms, webhooks, files
 async def lifespan(app):
     await init_cache()
     await init_storage()
-    subprocess.Popen(['python', 'seed_assets.py'])
+    process = await asyncio.create_subprocess_exec(
+        'python', 'seed_assets.py',
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
     yield
+    if process.returncode is None:
+        process.terminate()
+        try:
+            await asyncio.wait_for(process.wait(), timeout=5)
+        except asyncio.TimeoutError:
+            process.kill()
     await close_storage()
     await close_cache()
 

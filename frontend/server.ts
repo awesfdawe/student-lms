@@ -13,13 +13,19 @@ const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379/0')
 export async function createServer() {
   const app = express()
 
+  const ALLOWED_PROXY_HEADERS = ['content-type', 'authorization', 'accept', 'content-length', 'cookie'];
+
   app.use('/api', (req, res, next) => {
+    const filteredHeaders: Record<string, string | string[] | undefined> = { host: '127.0.0.1:8000' };
+    for (const h of ALLOWED_PROXY_HEADERS) {
+      if (req.headers[h]) filteredHeaders[h] = req.headers[h];
+    }
     const options = {
       hostname: '127.0.0.1',
       port: 8000,
       path: req.originalUrl,
       method: req.method,
-      headers: { ...req.headers, host: '127.0.0.1:8000' }
+      headers: filteredHeaders
     };
     const proxyReq = http.request(options, (proxyRes) => {
       res.writeHead(proxyRes.statusCode || 500, proxyRes.headers);
@@ -50,11 +56,11 @@ export async function createServer() {
   app.use('*', async (req, res, next) => {
     try {
       const url = req.originalUrl
-      
+
       const publicRoutes = ['/', '/about', '/contacts', '/faq', '/free', '/privacy-policy', '/terms-of-service']
       const isPublicRoute = publicRoutes.includes(url) || url.startsWith('/course/')
       const hasAuthCookie = req.headers.cookie?.includes('access_token')
-      
+
       const shouldCache = isPublicRoute && !hasAuthCookie
       const cacheKey = `ssr_page:${url}`
 
@@ -64,7 +70,7 @@ export async function createServer() {
           if (cachedHtml) {
             return res.status(200).set({ 'Content-Type': 'text/html' }).end(cachedHtml)
           }
-        } catch(err) {
+        } catch (err) {
           console.warn("Redis is not available, skipping cache.")
         }
       }
@@ -80,8 +86,8 @@ export async function createServer() {
       }
 
       const { html: appHtml, state } = await render(url)
-      const stateScript = `<script>window.__INITIAL_STATE__=${JSON.stringify(state)}</script>`
-      
+      const stateScript = `<script>window.__INITIAL_STATE__=${JSON.stringify(state).replace(/</g, '\\u003c').replace(/>/g, '\\u003e')}</script>`
+
       const html = template
         .replace('', appHtml)
         .replace('', stateScript)
@@ -89,7 +95,7 @@ export async function createServer() {
       if (shouldCache) {
         try {
           await redis.set(cacheKey, html, 'EX', 3600)
-        } catch(err) {}
+        } catch (err) { }
       }
 
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html)

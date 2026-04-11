@@ -19,6 +19,7 @@ class TwoFactorSetup(BaseModel):
     secret: str
     otpauth_uri: str
     recovery_codes: list[str]
+    qr_code: str = ""
 
 class TwoFactorDisable(BaseModel):
     password: str

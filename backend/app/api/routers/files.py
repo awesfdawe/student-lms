@@ -1,3 +1,4 @@
+import re
 from fastapi import APIRouter, Response, HTTPException
 import httpx
 import os
@@ -15,8 +16,13 @@ directus_url = os.environ.get("DIRECTUS_URL", "http://localhost:8055")
 email = os.environ.get("DIRECTUS_ADMIN_EMAIL", "admin@example.com")
 password = os.environ.get("DIRECTUS_ADMIN_PASSWORD", "adminpassword")
 
+SAFE_FILENAME = re.compile(r'^[a-zA-Z0-9_\-]+\.(svg|jpg|jpeg|png|webp|gif)$')
+
 @router.get("/{filename}")
 async def get_file(filename: str):
+    if not SAFE_FILENAME.match(filename):
+        raise HTTPException(status_code=400, detail="Invalid filename")
+
     cache_key = f"file_cache:{filename}"
     if r:
         try:

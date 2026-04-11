@@ -47,7 +47,7 @@
             <div class="p-[1.5rem] bg-[#f9f9fa] rounded-[1.5rem] border border-gray-100">
               <h3 class="font-bold text-[#2D3149] mb-2">1. Отсканируйте QR-код</h3>
               <p class="text-[0.875rem] text-black/60 mb-4">Используйте Google Authenticator или Authy.</p>
-              <img :src="`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(setupData.otpauth_uri)}`" alt="QR Code" class="mx-auto mb-4 border border-gray-200 p-3 bg-white rounded-2xl shadow-sm" />
+              <img :src="setupData.qr_code" alt="QR Code" class="mx-auto mb-4 border border-gray-200 p-3 bg-white rounded-2xl shadow-sm" style="width: 200px; height: 200px;" />
             </div>
 
             <div class="p-[1.5rem] bg-[#f9f9fa] rounded-[1.5rem] border border-gray-100">

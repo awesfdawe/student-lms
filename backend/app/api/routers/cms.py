@@ -8,6 +8,11 @@ import logging
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+SINGLETON_QUERIES = {
+    "landing_page": text("SELECT * FROM landing_page LIMIT 1"),
+    "globals": text("SELECT * FROM globals LIMIT 1"),
+}
+
 @router.get("/courses")
 @cache(expire=3600)
 async def get_courses(request: Request, db: AsyncSession = Depends(get_db)):
@@ -57,11 +62,11 @@ async def get_page(slug: str, request: Request, db: AsyncSession = Depends(get_d
 @router.get("/{collection_name}")
 @cache(expire=3600)
 async def get_singleton(collection_name: str, request: Request, db: AsyncSession = Depends(get_db)):
-    ALLOWED_SINGLETONS = ["landing_page", "globals"]
-    if collection_name not in ALLOWED_SINGLETONS:
+    query = SINGLETON_QUERIES.get(collection_name)
+    if query is None:
         raise HTTPException(status_code=404)
     try:
-        result = await db.execute(text(f"SELECT * FROM {collection_name} LIMIT 1"))
+        result = await db.execute(query)
         row = result.mappings().first()
         return dict(row) if row else {}
     except Exception as e:

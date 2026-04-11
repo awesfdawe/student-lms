@@ -1,5 +1,6 @@
+import json
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
@@ -13,10 +14,13 @@ from app.core.security import (
     verify_totp,
     get_totp_uri,
     generate_recovery_codes,
-    get_password_hash
+    get_password_hash,
+    encrypt_totp_secret,
+    decrypt_totp_secret,
+    generate_qr_data_url,
 )
 from app.core.email import send_email
-from app.core.cache import get_redis
+from app.core.cache import get_redis, check_rate_limit
 from app.crud.crud_user import get_user_by_email, create_user
 from app.schemas.user import UserRead, UserRegister
 from app.schemas.token import Token, TwoFactorRequired, TwoFactorVerify, TwoFactorSetup, TwoFactorCode, TwoFactorDisable
@@ -26,10 +30,13 @@ from app.models.user import User
 router = APIRouter()
 
 @router.post("/register", response_model=UserRead)
-async def register(user_in: UserRegister, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+async def register(user_in: UserRegister, request: Request, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+    client_ip = request.client.host if request.client else "unknown"
+    await check_rate_limit(f"rate:register:{client_ip}", max_requests=5, window=300)
+
     user = await get_user_by_email(db, email=user_in.email)
     if user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="Registration failed")
     new_user = await create_user(db=db, user_in=user_in)
     background_tasks.add_task(
         send_email,
@@ -40,7 +47,10 @@ async def register(user_in: UserRegister, background_tasks: BackgroundTasks, db:
     return new_user
 
 @router.post("/login", response_model=Token | TwoFactorRequired)
-async def login(db: AsyncSession = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(request: Request, db: AsyncSession = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
+    client_ip = request.client.host if request.client else "unknown"
+    await check_rate_limit(f"rate:login:{client_ip}", max_requests=10, window=60)
+
     user = await get_user_by_email(db, email=form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
@@ -82,11 +92,12 @@ async def verify_2fa(body: TwoFactorVerify, db: AsyncSession = Depends(get_db), 
     if not user or not user.totp_secret:
         raise credentials_exception
 
+    decrypted_secret = decrypt_totp_secret(user.totp_secret)
+
     is_valid_totp = False
     try:
-        is_valid_totp = verify_totp(user.totp_secret, body.code)
+        is_valid_totp = verify_totp(decrypted_secret, body.code)
     except Exception:
-        # Игнорируем ошибку парсинга pyotp (например, если введен код восстановления не в base32)
         pass
 
     is_valid_recovery = False
@@ -121,33 +132,50 @@ async def verify_2fa(body: TwoFactorVerify, db: AsyncSession = Depends(get_db), 
     return Token(access_token=access_token)
 
 @router.post("/2fa/enable", response_model=TwoFactorSetup)
-async def enable_2fa(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def enable_2fa(current_user: User = Depends(get_current_user), r = Depends(get_redis)):
     if current_user.is_2fa_enabled:
         raise HTTPException(status_code=400, detail="2FA already enabled")
+
     secret = generate_totp_secret()
     codes = generate_recovery_codes()
     hashed_codes = [get_password_hash(c) for c in codes]
-    current_user.totp_secret = secret
-    current_user.recovery_codes = hashed_codes
-    await db.commit()
+
+    if r:
+        pending_data = json.dumps({"secret": secret, "hashed_codes": hashed_codes})
+        await r.set(f"2fa_pending:{current_user.id}", pending_data, ex=600)
+    else:
+        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+
     uri = get_totp_uri(secret, current_user.email)
-    return TwoFactorSetup(secret=secret, otpauth_uri=uri, recovery_codes=codes)
+    qr_code = generate_qr_data_url(uri)
+    return TwoFactorSetup(secret=secret, otpauth_uri=uri, recovery_codes=codes, qr_code=qr_code)
 
 @router.post("/2fa/confirm")
-async def confirm_2fa(body: TwoFactorCode, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    if not current_user.totp_secret:
+async def confirm_2fa(body: TwoFactorCode, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), r = Depends(get_redis)):
+    if not r:
+        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+
+    pending_raw = await r.get(f"2fa_pending:{current_user.id}")
+    if not pending_raw:
         raise HTTPException(status_code=400, detail="Call /2fa/enable first")
-    
+
+    pending = json.loads(pending_raw)
+    secret = pending["secret"]
+
     try:
-        is_valid = verify_totp(current_user.totp_secret, body.code)
+        is_valid = verify_totp(secret, body.code)
     except Exception:
         is_valid = False
 
     if not is_valid:
         raise HTTPException(status_code=400, detail="Invalid TOTP code")
     
+    current_user.totp_secret = encrypt_totp_secret(secret)
+    current_user.recovery_codes = pending["hashed_codes"]
     current_user.is_2fa_enabled = True
     await db.commit()
+
+    await r.delete(f"2fa_pending:{current_user.id}")
     return {"status": "2fa_enabled"}
 
 @router.post("/2fa/disable")
@@ -157,8 +185,10 @@ async def disable_2fa(body: TwoFactorDisable, current_user: User = Depends(get_c
     if not verify_password(body.password, current_user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
     
+    decrypted_secret = decrypt_totp_secret(current_user.totp_secret)
+    
     try:
-        is_valid_totp = verify_totp(current_user.totp_secret, body.code)
+        is_valid_totp = verify_totp(decrypted_secret, body.code)
     except Exception:
         is_valid_totp = False
 
@@ -170,4 +200,3 @@ async def disable_2fa(body: TwoFactorDisable, current_user: User = Depends(get_c
     current_user.recovery_codes = None
     await db.commit()
     return {"status": "2fa_disabled"}
-
