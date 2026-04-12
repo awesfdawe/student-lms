@@ -16,7 +16,7 @@
         <div class="prose max-w-[50rem] text-black/80 animate-fade-up" style="animation-delay: 0.2s" v-html="course.description || ''"></div>
 
         <div class="mt-10 flex gap-4 animate-fade-up" style="animation-delay: 0.3s">
-          <router-link to="/register" class="btn-cta inline-block text-center">{{ t('course_btn_enroll') }}</router-link>
+          <router-link to="/register" class="btn-cta">{{ t('course_btn_enroll') }}</router-link>
           <button @click="router.back()" class="btn-cta !bg-gray-200 !text-black hover:!bg-gray-300">
             {{ t('global_btn_back') }}
           </button>
