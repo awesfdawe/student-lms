@@ -2,7 +2,7 @@
   <footer class="footer-wrapper">
     <div class="footer-top">
       <div class="footer-brand">
-        <div class="font-geologica font-bold text-[1.5rem] text-[#2D3149]">SKILLFORGE</div>
+        <div class="font-geologica font-bold text-[1.5rem] text-[#2D3149]">СКИЛЛФОРДЖ</div>
         <p class="text-[0.9375rem] text-black/60">{{ globals.footer_description }}</p>
       </div>
       
