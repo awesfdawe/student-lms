@@ -238,3 +238,12 @@
     max-width: 112.5rem;
   }
 }
+
+body.is-hydrating *,
+body.is-hydrating *::before,
+body.is-hydrating *::after {
+    -webkit-transition: none !important;
+    transition: none !important;
+    -webkit-animation: none !important;
+    animation: none !important;
+}
