@@ -10,6 +10,11 @@
 </template>
 
 <script setup lang="ts">
+const scrollToQuiz = () => {
+  const el = document.getElementById("quiz") || document.querySelector(".quiz-section") || document.querySelectorAll("section")[2];
+  if (el) el.scrollIntoView({ behavior: "smooth" });
+}
+
 import HeroTitle from './HeroTitle.vue'
 import HeroStats from './HeroStats.vue'
 </script>

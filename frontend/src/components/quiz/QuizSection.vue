@@ -1,6 +1,6 @@
 <template>
   <section
-    id="test"
+    id="quiz"
     class="relative z-10 pt-[5rem] md:pt-[10rem] pb-[5rem] md:pb-[10rem] px-[1.25rem] xl:px-[5.625rem] max-w-[80rem] mx-auto overflow-hidden"
   >
     <div

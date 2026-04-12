@@ -6,11 +6,9 @@
     <p v-if="landingPage.hero_subtitle" class="text-body text-black/60">{{ landingPage.hero_subtitle }}</p>
     
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-[1.5rem] sm:gap-[2.5rem] mt-[1rem]">
-      <router-link to="/free" class="btn-primary px-[2.5rem]">{{ t('hero_cta_text', 'Смотреть курсы') }}</router-link>
-      <router-link to="/quiz" class="font-bold text-[#2D3149] hover:text-[var(--color-accent)] transition-colors flex items-center gap-2 group">
-        Подобрать профессию 
-        <i class="fa-solid fa-arrow-right text-[0.875rem] transform group-hover:translate-x-1 transition-transform"></i>
-      </router-link>
+      <a href="#quiz" @click.prevent="scrollToQuiz" class="btn-primary px-[2.5rem]">
+        Подобрать профессию
+      </a>
     </div>
   </div>
 </template>
@@ -18,4 +16,22 @@
 <script setup lang="ts">
 import { useContent } from '@/composables/useContent'
 const { landingPage, t } = useContent()
+
+const scrollToQuiz = () => {
+  const el = document.getElementById('quiz') || document.querySelector('.quiz-section') || document.querySelectorAll('section')[2]
+  if (el) {
+    const isMobile = window.innerWidth < 768
+    const offsetFactor = isMobile ? 0.01 : 0.10
+    console.log(isMobile)
+    
+    const y = el.getBoundingClientRect().top + window.scrollY + (window.innerHeight * offsetFactor)
+    
+    window.scrollTo({ 
+      top: y, 
+      behavior: 'smooth' 
+    })
+  } else {
+    window.location.href = '/#quiz'
+  }
+}
 </script>

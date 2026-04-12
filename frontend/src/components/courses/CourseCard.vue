@@ -9,7 +9,7 @@
     ></div>
 
     <div
-      class="relative w-full h-[6.0625rem] bg-[#2b2b2b]/[0.73] rounded-b-[3.125rem] flex flex-col justify-center px-[1.5rem] md:px-[2rem] z-10 transition-colors duration-300 group-hover:bg-[#2b2b2b]/90"
+      class="relative w-full min-h-[8.5rem] bg-[#2b2b2b]/[0.73] rounded-b-[3.125rem] flex flex-col justify-end pb-[2rem] pt-[1rem] px-[1.5rem] md:px-[2rem] z-10 transition-colors duration-300 group-hover:bg-[#2b2b2b]/90"
     >
       <h3
         class="font-roboto font-bold text-[1.5rem] md:text-[1.75rem] text-white tracking-[0.01em]"
