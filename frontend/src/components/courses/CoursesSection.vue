@@ -9,7 +9,7 @@
           :title="course.title"
           :duration="course.duration"
           :feature="course.feature"
-          :image="course.image || '/src/assets/images/course-programmer.jpg'"
+          :image="course.image_path || '/src/assets/images/course-programmer.jpg'"
           :link="'/course/' + course.slug"
         />
       </div>

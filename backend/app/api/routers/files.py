@@ -6,13 +6,13 @@ import redis
 
 router = APIRouter()
 
-redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379")
+redis_url = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379")
 try:
     r = redis.from_url(redis_url)
 except Exception:
     r = None
 
-directus_url = os.environ.get("DIRECTUS_URL", "http://localhost:8055")
+directus_url = os.environ.get("DIRECTUS_URL", "http://127.0.0.1:8055")
 email = os.environ.get("DIRECTUS_ADMIN_EMAIL", "admin@example.com")
 password = os.environ.get("DIRECTUS_ADMIN_PASSWORD", "adminpassword")
 
