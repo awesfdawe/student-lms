@@ -96,7 +96,7 @@
       "feature": "помощь в трудоустройстве",
       "description": "Освой одну из самых востребованных профессий с нуля. Мы подготовили для тебя интенсивную программу с упором на практику, помощь наставников и формирование сильного портфолио для быстрого старта карьеры.",
       "is_free": false,
-      "image_path": "/src/assets/images/course-ux-ui.jpg"
+      "image_path": "course-ux-ui.jpgaaaaa"
     },
     {
       "slug": "programmer",
@@ -105,7 +105,7 @@
       "feature": "помощь в трудоустройстве",
       "description": "Освой одну из самых востребованных профессий с нуля. Мы подготовили для тебя интенсивную программу с упором на практику, помощь наставников и формирование сильного портфолио для быстрого старта карьеры.",
       "is_free": false,
-      "image_path": "/src/assets/images/course-programmer.jpg"
+      "image_path": "course-programmer.jpg"
     },
     {
       "slug": "3d-designer",
@@ -114,26 +114,8 @@
       "feature": "помощь в трудоустройстве",
       "description": "Освой одну из самых востребованных профессий с нуля. Мы подготовили для тебя интенсивную программу с упором на практику, помощь наставников и формирование сильного портфолио для быстрого старта карьеры.",
       "is_free": false,
-      "image_path": "/src/assets/images/course-3d.jpg"
+      "image_path": "course-3d.jpg"
     },
-    {
-      "slug": "free-design-basics",
-      "title": "Основы дизайна",
-      "duration": "1 неделя",
-      "feature": "вводный курс",
-      "description": "Попробуй наши вводные программы абсолютно бесплатно.",
-      "is_free": true,
-      "image_path": "/src/assets/images/course-ux-ui.jpg"
-    },
-    {
-      "slug": "free-code-intro",
-      "title": "Введение в код",
-      "duration": "2 недели",
-      "feature": "вводный курс",
-      "description": "Попробуй наши вводные программы абсолютно бесплатно.",
-      "is_free": true,
-      "image_path": "/src/assets/images/course-programmer.jpg"
-    }
   ],
   "quiz": [
     {
