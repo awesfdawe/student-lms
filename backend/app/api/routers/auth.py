@@ -1,10 +1,14 @@
 import json
+import base64
+from io import BytesIO
 from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
 import jwt
+import qrcode
+
 from app.core.config import settings
 from app.core.security import (
     verify_password,
@@ -17,7 +21,6 @@ from app.core.security import (
     get_password_hash,
     encrypt_totp_secret,
     decrypt_totp_secret,
-    generate_qr_data_url,
 )
 from app.core.email import send_email
 from app.core.cache import get_redis, check_rate_limit
@@ -29,6 +32,17 @@ from app.models.user import User
 
 router = APIRouter()
 
+def generate_qr_base64(uri: str) -> str:
+    try:
+        qr = qrcode.make(uri)
+        buf = BytesIO()
+        qr.save(buf, format="PNG")
+        img_str = base64.b64encode(buf.getvalue()).decode("ascii")
+        return f"data:image/png;base64,{img_str}"
+    except Exception as e:
+        print(f"QR Error: {e}")
+        return ""
+
 @router.post("/register", response_model=UserRead)
 async def register(user_in: UserRegister, request: Request, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     client_ip = request.client.host if request.client else "unknown"
@@ -36,7 +50,7 @@ async def register(user_in: UserRegister, request: Request, background_tasks: Ba
 
     user = await get_user_by_email(db, email=user_in.email)
     if user:
-        raise HTTPException(status_code=400, detail="Registration failed")
+        raise HTTPException(status_code=400, detail="Пользователь с таким email уже существует")
     new_user = await create_user(db=db, user_in=user_in)
     background_tasks.add_task(
         send_email,
@@ -55,7 +69,7 @@ async def login(request: Request, db: AsyncSession = Depends(get_db), form_data:
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Неверный email или пароль",
             headers={"WWW-Authenticate": "Bearer"},
         )
     if user.is_2fa_enabled and user.totp_secret:
@@ -71,7 +85,7 @@ async def login(request: Request, db: AsyncSession = Depends(get_db), form_data:
 async def verify_2fa(body: TwoFactorVerify, db: AsyncSession = Depends(get_db), r = Depends(get_redis)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid or expired temporary token",
+        detail="Недействительный или истекший временный токен",
     )
     try:
         payload = jwt.decode(body.temp_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
@@ -86,7 +100,7 @@ async def verify_2fa(body: TwoFactorVerify, db: AsyncSession = Depends(get_db), 
     if r:
         attempts = await r.get(f"2fa_fail:{body.temp_token}")
         if attempts and int(attempts) >= 5:
-            raise HTTPException(status_code=400, detail="Too many failed attempts")
+            raise HTTPException(status_code=400, detail="Слишком много неудачных попыток. Попробуйте позже")
 
     user = await get_user_by_email(db, email=email)
     if not user or not user.totp_secret:
@@ -119,7 +133,7 @@ async def verify_2fa(body: TwoFactorVerify, db: AsyncSession = Depends(get_db), 
             await r.expire(f"2fa_fail:{body.temp_token}", 300)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid code",
+            detail="Неверный код",
         )
 
     if r:
@@ -134,7 +148,7 @@ async def verify_2fa(body: TwoFactorVerify, db: AsyncSession = Depends(get_db), 
 @router.post("/2fa/enable", response_model=TwoFactorSetup)
 async def enable_2fa(current_user: User = Depends(get_current_user), r = Depends(get_redis)):
     if current_user.is_2fa_enabled:
-        raise HTTPException(status_code=400, detail="2FA already enabled")
+        raise HTTPException(status_code=400, detail="Двухфакторная аутентификация уже включена")
 
     secret = generate_totp_secret()
     codes = generate_recovery_codes()
@@ -144,20 +158,20 @@ async def enable_2fa(current_user: User = Depends(get_current_user), r = Depends
         pending_data = json.dumps({"secret": secret, "hashed_codes": hashed_codes})
         await r.set(f"2fa_pending:{current_user.id}", pending_data, ex=600)
     else:
-        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+        raise HTTPException(status_code=503, detail="Сервис временно недоступен")
 
     uri = get_totp_uri(secret, current_user.email)
-    qr_code = generate_qr_data_url(uri)
+    qr_code = generate_qr_base64(uri)
     return TwoFactorSetup(secret=secret, otpauth_uri=uri, recovery_codes=codes, qr_code=qr_code)
 
 @router.post("/2fa/confirm")
 async def confirm_2fa(body: TwoFactorCode, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), r = Depends(get_redis)):
     if not r:
-        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+        raise HTTPException(status_code=503, detail="Сервис временно недоступен")
 
     pending_raw = await r.get(f"2fa_pending:{current_user.id}")
     if not pending_raw:
-        raise HTTPException(status_code=400, detail="Call /2fa/enable first")
+        raise HTTPException(status_code=400, detail="Сначала запросите активацию 2FA")
 
     pending = json.loads(pending_raw)
     secret = pending["secret"]
@@ -168,7 +182,7 @@ async def confirm_2fa(body: TwoFactorCode, current_user: User = Depends(get_curr
         is_valid = False
 
     if not is_valid:
-        raise HTTPException(status_code=400, detail="Invalid TOTP code")
+        raise HTTPException(status_code=400, detail="Неверный код подтверждения")
     
     current_user.totp_secret = encrypt_totp_secret(secret)
     current_user.recovery_codes = pending["hashed_codes"]
@@ -181,9 +195,9 @@ async def confirm_2fa(body: TwoFactorCode, current_user: User = Depends(get_curr
 @router.post("/2fa/disable")
 async def disable_2fa(body: TwoFactorDisable, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if not current_user.is_2fa_enabled:
-        raise HTTPException(status_code=400, detail="2FA not enabled")
+        raise HTTPException(status_code=400, detail="Двухфакторная аутентификация не включена")
     if not verify_password(body.password, current_user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный пароль")
     
     decrypted_secret = decrypt_totp_secret(current_user.totp_secret)
     
@@ -193,7 +207,7 @@ async def disable_2fa(body: TwoFactorDisable, current_user: User = Depends(get_c
         is_valid_totp = False
 
     if not is_valid_totp:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid 2FA code")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный код 2FA")
     
     current_user.is_2fa_enabled = False
     current_user.totp_secret = None
