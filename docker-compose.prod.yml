@@ -1,0 +1,185 @@
+services:
+  database:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: directus
+      POSTGRES_PASSWORD: directus_password
+      POSTGRES_DB: student_lms
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U directus -d student_lms"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  seaweedfs-master:
+    image: chrislusf/seaweedfs
+    command: "master -ip=seaweedfs-master -port=9333 -mdir=/data"
+    volumes:
+      - seaweedfs_master_data:/data
+    networks:
+      - internal
+
+  seaweedfs-volume:
+    image: chrislusf/seaweedfs
+    command: "volume -mserver=seaweedfs-master:9333 -ip=seaweedfs-volume -port=8080 -dir=/data"
+    volumes:
+      - seaweedfs_volume_data:/data
+    depends_on:
+      - seaweedfs-master
+    networks:
+      - internal
+
+  seaweedfs-filer:
+    image: chrislusf/seaweedfs
+    command: "filer -master=seaweedfs-master:9333 -ip=seaweedfs-filer -port=8888 -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json"
+    volumes:
+      - seaweedfs_filer_data:/data
+    configs:
+      - source: seaweedfs_s3_config
+        target: /etc/seaweedfs/s3.json
+    depends_on:
+      - seaweedfs-master
+      - seaweedfs-volume
+    networks:
+      - internal
+
+  redis:
+    image: redis:8.6.2
+    restart: unless-stopped
+    networks:
+      - internal
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    networks:
+      - internal
+
+  directus:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    image: directus/directus:latest
+    command: ["sh", "-c", "node cli.js bootstrap && node cli.js schema apply ./directus-schema.yaml --yes && node cli.js start"]
+    volumes:
+      - ./directus-extensions:/directus/extensions
+      - ./directus-schema.yaml:/directus/directus-schema.yaml
+    depends_on:
+      database:
+        condition: service_healthy
+      seaweedfs-filer:
+        condition: service_started
+      redis:
+        condition: service_started
+    restart: always
+    environment:
+      SECRET: "secure-secret-placeholder"
+      KEY: "secure-key-placeholder"
+      ADMIN_EMAIL: "admin@example.com"
+      ADMIN_PASSWORD: "adminpassword"
+      DB_CLIENT: "pg"
+      DB_HOST: "database"
+      DB_PORT: "5432"
+      DB_DATABASE: "student_lms"
+      DB_USER: "directus"
+      DB_PASSWORD: "directus_password"
+      STORAGE_LOCATIONS: "s3"
+      STORAGE_S3_DRIVER: "s3"
+      STORAGE_S3_KEY: "admin"
+      STORAGE_S3_SECRET: "admin"
+      STORAGE_S3_BUCKET: "directus"
+      STORAGE_S3_ENDPOINT: "http://seaweedfs-filer:8333"
+      STORAGE_S3_REGION: "us-east-1"
+      STORAGE_S3_FORCE_PATH_STYLE: "true"
+      CACHE_ENABLED: "true"
+      CACHE_STORE: "redis"
+      REDIS: "redis://redis:6379"
+    networks:
+      - internal
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      seaweedfs-filer:
+        condition: service_started
+    restart: unless-stopped
+    environment:
+      POSTGRES_SERVER: database
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: directus
+      POSTGRES_PASSWORD: directus_password
+      POSTGRES_DB: student_lms
+      DIRECTUS_URL: "http://directus:8055"
+      DIRECTUS_ADMIN_EMAIL: "admin@example.com"
+      DIRECTUS_ADMIN_PASSWORD: "adminpassword"
+      VALKEY_HOST: redis
+      VALKEY_PORT: 6379
+      WEBHOOK_SECRET: "dev_secret_key"
+      S3_ENDPOINT: "http://seaweedfs-filer:8333"
+      S3_ACCESS_KEY: "admin"
+      S3_SECRET_KEY: "admin"
+      S3_BUCKET: "directus"
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+    networks:
+      - internal
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+      - redis
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      API_HOST: backend
+      API_PORT: 8000
+      REDIS_URL: "redis://redis:6379"
+    networks:
+      - internal
+
+volumes:
+  postgres_data:
+  seaweedfs_master_data:
+  seaweedfs_volume_data:
+  seaweedfs_filer_data:
+
+configs:
+  seaweedfs_s3_config:
+    content: |
+      {
+        "identities": [
+          {
+            "name": "admin",
+            "credentials": [
+              {
+                "accessKey": "admin",
+                "secretKey": "admin"
+              }
+            ],
+            "actions": [
+              "Read",
+              "Write",
+              "List",
+              "Tagging",
+              "Admin"
+            ]
+          }
+        ]
+      }
+
+networks:
+  internal:
+    internal: true

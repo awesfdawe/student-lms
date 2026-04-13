@@ -11,6 +11,9 @@ const isProduction = process.env.NODE_ENV === 'production'
 const port = process.env.PORT || 5173
 const base = process.env.BASE || '/'
 
+const apiHost = process.env.API_HOST || '127.0.0.1'
+const apiPort = process.env.API_PORT || '8000'
+
 const redisClient = createClient({
   url: process.env.REDIS_URL || 'redis://localhost:6379'
 })
@@ -28,11 +31,11 @@ async function createServer() {
 
   app.use('/api', (req, res, next) => {
     const options = {
-      hostname: '127.0.0.1',
-      port: 8000,
+      hostname: apiHost,
+      port: parseInt(apiPort),
       path: req.originalUrl,
       method: req.method,
-      headers: { ...req.headers, host: '127.0.0.1:8000' }
+      headers: { ...req.headers, host: `${apiHost}:${apiPort}` }
     };
     const proxyReq = http.request(options, (proxyRes) => {
       res.writeHead(proxyRes.statusCode || 500, proxyRes.headers);
