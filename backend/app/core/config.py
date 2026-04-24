@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     POSTGRES_SERVER: str = "127.0.0.1"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
-    POSTGRES_DB: str = "postgres"
+    POSTGRES_DB: str = "student_lms"
     POSTGRES_PORT: int = 5432
 
     SECRET_KEY: str = "super_secret_key_change_in_production"
@@ -22,13 +22,13 @@ class Settings(BaseSettings):
     VALKEY_DB: int = 0
     WEBHOOK_SECRET: str = ""
 
-    S3_ENDPOINT: str = "http://localhost:9005"
+    S3_ENDPOINT: str = "http://127.0.0.1:8333"
     S3_ACCESS_KEY: str = "admin"
     S3_SECRET_KEY: str = "admin"
     S3_BUCKET: str = "directus"
     S3_REGION: str = "us-east-1"
 
-    SMTP_HOST: str = "localhost"
+    SMTP_HOST: str = "127.0.0.1"
     SMTP_PORT: int = 1025
     SMTP_USER: str = ""
     SMTP_PASSWORD: str = ""

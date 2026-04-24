@@ -10,9 +10,6 @@ sudo docker compose down -v --remove-orphans
 ```bash
 sudo docker compose up -d 
 ```
-```bash
-sudo ./init-test-db.sh
-```
 
 In separate terminals:
 - In first one
