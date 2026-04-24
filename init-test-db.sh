@@ -2,32 +2,23 @@
 
 set -e
 
-cat << 'EOF' > backend/.env
-DIRECTUS_URL=http://localhost:8055
+DIRECTUS_URL=http://127.0.0.1:8055
 DIRECTUS_ADMIN_EMAIL=admin@example.com
 DIRECTUS_ADMIN_PASSWORD=adminpassword
 REDIS_URL=redis://127.0.0.1:6379
 POSTGRES_SERVER=127.0.0.1
-POSTGRES_PORT=5433
-POSTGRES_USER=directus
-POSTGRES_PASSWORD=directus_password
-POSTGRES_DB=student_lms
-SQLALCHEMY_DATABASE_URI=postgresql+asyncpg://directus:directus_password@127.0.0.1:5433/student_lms
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=postgres
+SQLALCHEMY_DATABASE_URI=postgresql+asyncpg://postgres:postgres@127.0.0.1:5432/student_lms
 WEBHOOK_SECRET=dev_secret_key
-EOF
-
-set -a
-. backend/.env
-set +a
 
 until $(curl --output /dev/null --silent --head --fail "$DIRECTUS_URL/server/ping"); do
     sleep 5
 done
 
-docker compose exec -T directus npx directus schema apply ./directus-schema.yaml --yes
-
 cd backend
-uv run alembic stamp head
 uv run python seed.py
 uv run python seed_assets.py
 cd ..

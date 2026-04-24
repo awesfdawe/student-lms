@@ -1,9 +1,17 @@
-
+import asyncio
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import json
 import logging
 import nh3
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.responses import Response
+
+from app.core.config import settings
+from app.core.cache import init_cache, close_cache
+from app.core.storage import init_storage, close_storage
+from app.api.routers import auth, users, cms, webhooks, files
 
 logger = logging.getLogger(__name__)
 
@@ -40,40 +48,9 @@ class SafeCMSMiddleware(BaseHTTPMiddleware):
                 return Response(content=body, status_code=response.status_code, headers=headers)
         return response
 
-import asyncio
-from contextlib import asynccontextmanager
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.core.config import settings
-from app.core.cache import init_cache, close_cache
-from app.core.storage import init_storage, close_storage
-from app.api.routers import auth, users, cms, webhooks, files
-
-
-@asynccontextmanager
-async def lifespan(app):
-    await init_cache()
-    await init_storage()
-    process = await asyncio.create_subprocess_exec(
-        'python', 'seed_assets.py',
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
-    yield
-    if process.returncode is None:
-        process.terminate()
-        try:
-            await asyncio.wait_for(process.wait(), timeout=5)
-        except asyncio.TimeoutError:
-            process.kill()
-    await close_storage()
-    await close_cache()
-
-
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url="/openapi.json",
-    lifespan=lifespan,
+    openapi_url="/openapi.json"
 )
 app.add_middleware(SafeCMSMiddleware)
 
