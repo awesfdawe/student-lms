@@ -3,10 +3,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Student LMS API"
     
-    POSTGRES_SERVER: str = "localhost"
+    POSTGRES_SERVER: str = "127.0.0.1"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
-    POSTGRES_DB: str = "student_lms"
+    POSTGRES_DB: str = "postgres"
     POSTGRES_PORT: int = 5432
 
     SECRET_KEY: str = "super_secret_key_change_in_production"
