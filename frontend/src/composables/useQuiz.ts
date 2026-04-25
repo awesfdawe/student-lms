@@ -1,14 +1,29 @@
 import { ref, computed } from 'vue'
-import { quizData } from '../data/quiz'
+import { api } from '@/api/index'
+
+export interface QuizAnswer {
+  text: string
+  experience_score: number
+}
+
+export interface QuizQuestion {
+  id: number
+  title: string
+  answers: QuizAnswer[]
+}
 
 export function useQuiz() {
+  const questions = ref<QuizQuestion[]>([])
   const currentQuestionIndex = ref(0)
   const experienceScore = ref(0)
   const isFinished = ref(false)
-  const totalQuestions = quizData.length
+  const isLoading = ref(true)
+  const error = ref<string | null>(null)
+
+  const totalQuestions = computed(() => questions.value.length)
 
   const currentQuestion = computed(() => {
-    return quizData[currentQuestionIndex.value] || null
+    return questions.value[currentQuestionIndex.value] || null
   })
 
   const profession = computed(() => {
@@ -35,7 +50,7 @@ export function useQuiz() {
 
   function handleAnswer(scoreToAdd: number) {
     experienceScore.value += scoreToAdd
-    if (currentQuestionIndex.value < totalQuestions - 1) {
+    if (currentQuestionIndex.value < totalQuestions.value - 1) {
       currentQuestionIndex.value++
     } else {
       isFinished.value = true
@@ -48,10 +63,26 @@ export function useQuiz() {
     isFinished.value = false
   }
 
+  async function fetchQuizData() {
+    isLoading.value = true
+    error.value = null
+    try {
+      const response = await api.get<QuizQuestion[]>('/cms/quiz')
+      questions.value = response.data
+    } catch (e: any) {
+      error.value = 'Ошибка при загрузке вопросов.'
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
+    questions,
     currentQuestionIndex,
     experienceScore,
     isFinished,
+    isLoading,
+    error,
     totalQuestions,
     currentQuestion,
     resultText,
@@ -59,5 +90,6 @@ export function useQuiz() {
     courseLink,
     handleAnswer,
     resetQuiz,
+    fetchQuizData
   }
 }

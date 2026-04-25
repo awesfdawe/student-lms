@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import text
+from sqlalchemy import text, select
 from app.core.database import get_db
 from app.core.cache import cache
 import logging
+from app.models.quiz import Quiz
+from app.schemas.quiz import QuizResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -34,11 +36,11 @@ async def get_faqs(request: Request, db: AsyncSession = Depends(get_db)):
     result = await db.execute(text("SELECT * FROM faqs"))
     return [dict(r) for r in result.mappings().all()]
 
-@router.get("/quiz")
+@router.get("/quiz", response_model=list[QuizResponse])
 @cache(expire=3600)
 async def get_quiz(request: Request, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(text("SELECT * FROM quiz"))
-    return [dict(r) for r in result.mappings().all()]
+    result = await db.execute(select(Quiz).order_by(Quiz.id))
+    return list(result.scalars().all())
 
 @router.get("/ui_dictionary")
 @cache(expire=3600)

@@ -4,7 +4,7 @@ from app.models.course import Course
 from app.models.faq import FAQ
 from app.models.dictionary import UIDictionary
 from app.models.globals import GlobalSettings, LandingPage
-from app.models.quiz import QuizQuestion, QuizAnswer
+from app.models.quiz import Quiz
 from app.models.page import Page
 
 __all__ = [
