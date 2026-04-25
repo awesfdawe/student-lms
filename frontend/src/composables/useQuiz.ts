@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { api } from '@/api/index'
+import { API_BASE_URL, getAuthHeaders } from '@/api/index'
 
 export interface QuizAnswer {
   text: string
@@ -67,10 +67,23 @@ export function useQuiz() {
     isLoading.value = true
     error.value = null
     try {
-      const response = await api.get<QuizQuestion[]>('/cms/quiz')
-      questions.value = response.data
+      const response = await fetch(`${API_BASE_URL}/cms/quiz`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          ...getAuthHeaders()
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      questions.value = data
     } catch (e: any) {
       error.value = 'Ошибка при загрузке вопросов.'
+      console.error('Ошибка fetchQuizData:', e)
     } finally {
       isLoading.value = false
     }
