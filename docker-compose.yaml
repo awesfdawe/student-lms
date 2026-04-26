@@ -122,6 +122,8 @@ services:
       - REDIS=redis://valkey:6379
     security_opt:
       - no-new-privileges:true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   postgres:
